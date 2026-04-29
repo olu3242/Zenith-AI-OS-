@@ -183,3 +183,5 @@ export async function createAIOS(config: AIOSConfig): Promise<AIOSInstance> {
 
   return { context, memory, agents: { runner, registry }, tools: toolBus, workflows, knowledge, policy, security, tracer, plugins };
 }
+export { createAIOS } from './createAIOS.js';
+export type { AIOS, AIOSConfig } from './createAIOS.js';
