@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free AI OS Audit — Zenith AI OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black:   #080A0C;
+    --surface: #0E1115;
+    --card:    #131720;
+    --border:  #1E2530;
+    --border2: #2A3040;
+    --gold:    #E8B84B;
+    --gold2:   #C49A2E;
+    --amber:   #F5C842;
+    --cream:   #EDE8DC;
+    --muted:   #7A8599;
+    --faint:   #3D4558;
+    --green:   #2EC98A;
+    --red:     #E85454;
+    --blue:    #4F8EF7;
+    --font-display: 'Bebas Neue', 'Arial Black', sans-serif;
+    --font-body:    'Crimson Pro', Georgia, serif;
+    --font-mono:    'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--cream);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── Grid overlay ─────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(232,184,75,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,184,75,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Noise ─────────────────────────── */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: .5;
+  }
+
+  /* ── Nav ───────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,10,12,0.85);
+    backdrop-filter: blur(20px);
+  }
+
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-logo-icon {
+    width: 28px; height: 28px;
+    background: var(--gold);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+  .nav-logo-text {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    letter-spacing: 0.15em;
+    color: var(--cream);
+  }
+  .nav-badge {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--gold);
+    border: 1px solid var(--gold2);
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+  }
+
+  .nav-links {
+    display: flex; align-items: center; gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--cream); }
+
+  .nav-cta {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: background .2s;
+    text-decoration: none;
+  }
+  .nav-cta:hover { background: var(--amber); }
+
+  /* ── Hero ──────────────────────────── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    padding: 160px 48px 100px;
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 32px; height: 1px;
+    background: var(--gold);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 8vw, 7.5rem);
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+    color: var(--cream);
+    margin-bottom: 28px;
+  }
+  h1 em {
+    font-style: normal;
+    color: var(--gold);
+    display: block;
+  }
+
+  .hero-sub {
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 500px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
+
+  .hero-sub strong { color: var(--cream); font-weight: 400; }
+
+  .hero-actions {
+    display: flex; align-items: center; gap: 20px;
+  }
+
+  .btn-primary {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 16px 36px;
+    cursor: pointer;
+    transition: background .2s, transform .15s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--amber); transform: translateY(-1px); }
+
+  .btn-ghost {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border2);
+    padding: 15px 36px;
+    cursor: pointer;
+    transition: color .2s, border-color .2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-ghost:hover { color: var(--cream); border-color: var(--muted); }
+
+  /* ── Score Ring (hero visual) ──────── */
+  .hero-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-ring-wrapper {
+    position: relative;
+    width: 320px; height: 320px;
+  }
+
+  .score-ring-wrapper svg {
+    animation: spinSlow 40s linear infinite;
+  }
+
+  @keyframes spinSlow {
+    to { transform: rotate(360deg); }
+  }
+
+  .score-ring-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 4px;
+  }
+
+  .score-ring-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .score-ring-number {
+    font-family: var(--font-display);
+    font-size: 4.5rem;
+    line-height: 1;
+    color: var(--gold);
+  }
+
+  .score-ring-sub {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .ring-tick {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--faint);
+  }
+
+  .hero-domain-tags {
+    position: absolute;
+    display: flex; flex-direction: column; gap: 8px;
+    right: -40px; top: 50%; transform: translateY(-50%);
+  }
+
+  .domain-tag {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--gold);
+    padding: 6px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    animation: fadeSlideIn 0.5s ease both;
+  }
+
+  .domain-tag span {
+    color: var(--green);
+    margin-left: 8px;
+  }
+  .domain-tag.warn span { color: var(--amber); }
+  .domain-tag.crit span { color: var(--red); }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateX(10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── Separator ─────────────────────── */
+  .separator {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: 0;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    height: 44px;
+    background: var(--surface);
+  }
+
+  .sep-item {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding: 0 28px;
+    border-right: 1px solid var(--border);
+    height: 100%;
+    display: flex; align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .sep-item strong { color: var(--gold); margin-right: 8px; }
+
+  /* ── Section base ──────────────────── */
+  section {
+    position: relative; z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 100px 48px;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::before {
+    content: '//';
+    opacity: .4;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    color: var(--cream);
+    margin-bottom: 20px;
+  }
+
+  h2 em {
+    font-style: normal;
+    color: var(--gold);
+  }
+
+  .section-intro {
+    font-size: 1.15rem;
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 580px;
+    margin-bottom: 60px;
+    line-height: 1.75;
+  }
+
+  /* ── What You Get ──────────────────── */
+  .audit-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .audit-card {
+    background: var(--card);
+    padding: 36px 32px;
+    transition: background .2s;
+  }
+  .audit-card:hover { background: #161b24; }
+
+  .audit-card-icon {
+    width: 40px; height: 40px;
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--gold);
+  }
+
+  .audit-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    letter-spacing: 0.06em;
+    color: var(--cream);
+    margin-bottom: 10px;
+  }
+
+  .audit-card p {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* ── 12 Domain Checklist ────────────── */
+  .domains-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .domain-list {
+    display: flex; flex-direction: column; gap: 0;
+    border: 1px solid var(--border);
+  }
+
+  .domain-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background .2s;
+    cursor: default;
+  }
+  .domain-row:last-child { border-bottom: none; }
+  .domain-row:hover { background: rgba(232,184,75,0.04); }
+
+  .domain-row-num {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--faint);
+    width: 20px;
+    flex-shrink: 0;
+  }
+
+  .domain-row-name {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--cream);
+    flex: 1;
+    letter-spacing: 0.04em;
+  }
+
+  .domain-row-controls {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+  }
+
+  .domain-row-weight {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--gold);
+    width: 36px;
+    text-align: right;
+  }
+
+  .domains-explainer {
+    display: flex; flex-direction: column; gap: 24px;
+  }
+
+  .explainer-block {
+    border-left: 2px solid var(--gold);
+    padding-left: 20px;
+  }
+
+  .explainer-block h4 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    letter-spacing: 0.06em;
+    color: var(--cream);
+    margin-bottom: 6px;
+  }
+
+  .explainer-block p {
+    font-size: 0.92rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ── Cert Ladder ───────────────────── */
+  .cert-ladder {
+    display: flex; flex-direction: column; gap: 0;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .cert-row {
+    display: flex; align-items: stretch;
+    border-bottom: 1px solid var(--border);
+    transition: background .2s;
+  }
+  .cert-row:last-child { border-bottom: none; }
+  .cert-row:hover { background: rgba(232,184,75,0.04); }
+
+  .cert-row.current { background: rgba(232,184,75,0.06); }
+
+  .cert-level-badge {
+    width: 100px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    flex-shrink: 0;
+  }
+
+  .cert-level-badge.achieved { color: var(--gold); }
+  .cert-level-badge.current-level { color: var(--black); background: var(--gold); }
+  .cert-level-badge.future { color: var(--faint); }
+
+  .cert-row-content {
+    flex: 1;
+    padding: 16px 24px;
+    display: flex; flex-direction: column; justify-content: center; gap: 4px;
+  }
+
+  .cert-row-title {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--cream);
+    letter-spacing: 0.05em;
+  }
+
+  .cert-row-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  .cert-row-threshold {
+    width: 80px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--faint);
+    border-left: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .cert-row.current .cert-row-threshold { color: var(--gold); }
+
+  /* ── Free Audit Form ───────────────── */
+  .form-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 100px 0;
+  }
+
+  .form-section > * {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+
+  .form-layout {
+    display: grid;
+    grid-template-columns: 1fr 520px;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .form-left h2 { margin-bottom: 16px; }
+  .form-left p {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 36px;
+  }
+
+  .form-trust {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+
+  .trust-item {
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+  .trust-item::before {
+    content: '✓';
+    color: var(--green);
+    font-size: 0.8rem;
+  }
+
+  .audit-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 40px;
+  }
+
+  .form-header {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    letter-spacing: 0.08em;
+    color: var(--cream);
+    margin-bottom: 4px;
+  }
+
+  .form-subheader {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    font-style: italic;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .form-group label span {
+    color: var(--gold);
+    margin-left: 3px;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--black);
+    border: 1px solid var(--border2);
+    color: var(--cream);
+    padding: 12px 16px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .form-input:focus { border-color: var(--gold); }
+  .form-input::placeholder { color: var(--faint); }
+
+  .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23E8B84B'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-checklist {
+    border: 1px solid var(--border);
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+
+  .check-option {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.88rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .check-option input[type="checkbox"] {
+    accent-color: var(--gold);
+    width: 14px; height: 14px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 18px;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: background .2s, transform .15s;
+    margin-top: 8px;
+  }
+  .submit-btn:hover { background: var(--amber); transform: translateY(-1px); }
+
+  .form-disclaimer {
+    font-size: 0.78rem;
+    color: var(--faint);
+    text-align: center;
+    margin-top: 12px;
+    font-style: italic;
+  }
+
+  /* ── How It Works ──────────────────── */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid var(--border);
+  }
+
+  .step-card {
+    padding: 36px 28px;
+    border-right: 1px solid var(--border);
+    position: relative;
+    transition: background .2s;
+  }
+  .step-card:last-child { border-right: none; }
+  .step-card:hover { background: rgba(232,184,75,0.04); }
+
+  .step-num {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    color: var(--gold);
+    opacity: 0.25;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .step-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    letter-spacing: 0.06em;
+    color: var(--cream);
+    margin-bottom: 10px;
+  }
+
+  .step-card p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .step-arrow {
+    position: absolute;
+    right: -10px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold);
+    font-size: 1rem;
+    z-index: 2;
+  }
+
+  /* ── DB Providers ──────────────────── */
+  .providers-section {
+    background: linear-gradient(to bottom, transparent, var(--surface) 20%, var(--surface) 80%, transparent);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .db-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 48px;
+  }
+
+  .db-card {
+    background: var(--card);
+    padding: 24px 28px;
+    display: flex; align-items: flex-start; gap: 16px;
+    transition: background .2s;
+  }
+  .db-card:hover { background: #161b24; }
+
+  .db-icon {
+    width: 38px; height: 38px; flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+  }
+
+  .db-info h4 {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--cream);
+    margin-bottom: 4px;
+  }
+
+  .db-info p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .db-vector-badge {
+    margin-top: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--green);
+    border: 1px solid rgba(46,201,138,0.3);
+    padding: 2px 6px;
+    display: inline-block;
+  }
+  .db-vector-badge.fallback { color: var(--amber); border-color: rgba(245,200,66,0.3); }
+
+  /* ── Testimonials / Social Proof ───── */
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .proof-card {
+    background: var(--card);
+    padding: 36px 32px;
+  }
+
+  .proof-score {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .proof-score-band {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .proof-quote {
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+
+  .proof-author {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: var(--cream);
+  }
+
+  .proof-author span {
+    color: var(--faint);
+    display: block;
+    margin-top: 2px;
+  }
+
+  /* ── Final CTA ─────────────────────── */
+  .final-cta {
+    text-align: center;
+    padding: 120px 48px;
+  }
+
+  .final-cta h2 {
+    font-size: clamp(3rem, 7vw, 6rem);
+    max-width: 900px;
+    margin: 0 auto 24px;
+    line-height: 1;
+  }
+
+  .final-cta p {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 auto 40px;
+    line-height: 1.7;
+  }
+
+  /* ── Footer ────────────────────────── */
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding: 40px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--faint);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-links {
+    display: flex; gap: 28px;
+    list-style: none;
+  }
+  .footer-links a {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--faint);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color .2s;
+  }
+  .footer-links a:hover { color: var(--gold); }
+
+  /* ── Animations ────────────────────── */
+  @keyframes revealUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal { animation: revealUp .7s ease both; }
+  .reveal-1 { animation-delay: .1s; }
+  .reveal-2 { animation-delay: .2s; }
+  .reveal-3 { animation-delay: .3s; }
+  .reveal-4 { animation-delay: .4s; }
+  .reveal-5 { animation-delay: .5s; }
+
+  /* ── Glow accent ───────────────────── */
+  .glow-gold {
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(232,184,75,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── Modal (success state) ─────────── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(8,10,12,0.92);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--gold);
+    padding: 60px;
+    max-width: 520px;
+    text-align: center;
+    animation: revealUp .4s ease;
+  }
+
+  .modal-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+
+  .modal h3 {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .modal p {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 28px;
+  }
+
+  .modal-close {
+    background: var(--gold); color: var(--black);
+    border: none; padding: 14px 32px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon"></div>
+    <span class="nav-logo-text">ZENITH</span>
+    <span class="nav-badge">AI OS v1.0</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">Process</a></li>
+    <li><a href="#domains">12 Domains</a></li>
+    <li><a href="#certification">Certification</a></li>
+    <li><a href="#providers">DB Support</a></li>
+  </ul>
+  <a href="#audit-form" class="nav-cta">Get Free Audit</a>
+</nav>
+
+<!-- ── Hero ──────────────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="glow-gold" style="top:-100px;left:-100px;"></div>
+
+  <div>
+    <div class="hero-eyebrow reveal">Free AI OS Audit — No CC Required</div>
+    <h1 class="reveal reveal-1">
+      WHAT<br>SCORE<br>DOES YOUR<br><em>AI PRODUCT</em><br>GET?
+    </h1>
+    <p class="hero-sub reveal reveal-2">
+      In <strong>under 5 minutes</strong>, your product is scored across 
+      <strong>60 controls in 12 domains</strong>. You receive a certification level, 
+      a full gap register, and a 90-day remediation roadmap — completely free.
+    </p>
+    <div class="hero-actions reveal reveal-3">
+      <a href="#audit-form" class="btn-primary">Start My Free Audit →</a>
+      <a href="#domains" class="btn-ghost">See All 60 Controls</a>
+    </div>
+  </div>
+
+  <div class="hero-visual reveal reveal-2">
+    <div class="score-ring-wrapper">
+      <svg viewBox="0 0 320 320" width="320" height="320">
+        <!-- Outer tick marks -->
+        <g stroke="rgba(232,184,75,0.15)" stroke-width="1">
+          <line x1="160" y1="4" x2="160" y2="14"/>
+          <line x1="316" y1="160" x2="306" y2="160"/>
+          <line x1="160" y1="316" x2="160" y2="306"/>
+          <line x1="4" y1="160" x2="14" y2="160"/>
+        </g>
+        <!-- Background ring -->
+        <circle cx="160" cy="160" r="140" fill="none" stroke="rgba(30,37,48,0.8)" stroke-width="12"/>
+        <!-- Dashed reference ring -->
+        <circle cx="160" cy="160" r="140" fill="none" stroke="rgba(232,184,75,0.1)" stroke-width="1" stroke-dasharray="4 8"/>
+        <!-- Score arc (62.4%) -->
+        <circle cx="160" cy="160" r="140" fill="none"
+          stroke="url(#goldGrad)" stroke-width="12" stroke-linecap="round"
+          stroke-dasharray="549.8 879.6"
+          transform="rotate(-90 160 160)"/>
+        <!-- Inner ring -->
+        <circle cx="160" cy="160" r="114" fill="none" stroke="rgba(30,37,48,0.6)" stroke-width="6"/>
+        <!-- Inner arc (partial) -->
+        <circle cx="160" cy="160" r="114" fill="none"
+          stroke="rgba(232,184,75,0.2)" stroke-width="6"
+          stroke-dasharray="224 716"
+          transform="rotate(-90 160 160)"/>
+        <defs>
+          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#E8B84B"/>
+            <stop offset="100%" stop-color="#F5C842"/>
+          </linearGradient>
+        </defs>
+        <!-- Dot markers -->
+        <circle cx="160" cy="20" r="3" fill="rgba(232,184,75,0.5)"/>
+        <circle cx="300" cy="160" r="3" fill="rgba(232,184,75,0.5)"/>
+      </svg>
+      <div class="score-ring-center">
+        <span class="score-ring-label">Your score</span>
+        <span class="score-ring-number">?</span>
+        <span class="score-ring-sub">/ 100</span>
+      </div>
+    </div>
+    <div class="hero-domain-tags">
+      <div class="domain-tag" style="animation-delay:.1s">Security Trust<span>82</span></div>
+      <div class="domain-tag" style="animation-delay:.2s">Agent Orchestration<span>72</span></div>
+      <div class="domain-tag warn" style="animation-delay:.3s">Workflow Engine<span>55</span></div>
+      <div class="domain-tag warn" style="animation-delay:.4s">Observability<span>35</span></div>
+      <div class="domain-tag crit" style="animation-delay:.5s">Policy Engine<span>8</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Stats bar ──────────────────────────────────────────────────── -->
+<div class="separator">
+  <div class="sep-item"><strong>60</strong> CONTROLS EVALUATED</div>
+  <div class="sep-item"><strong>12</strong> DOMAINS SCORED</div>
+  <div class="sep-item"><strong>5</strong> CERT LEVELS</div>
+  <div class="sep-item"><strong>9</strong> DB PROVIDERS SUPPORTED</div>
+  <div class="sep-item"><strong>100%</strong> FREE · NO CC</div>
+  <div class="sep-item"><strong>48H</strong> REPORT TURNAROUND</div>
+  <div class="sep-item"><strong>90-DAY</strong> ROADMAP INCLUDED</div>
+  <div class="sep-item"><strong>60</strong> CONTROLS EVALUATED</div>
+  <div class="sep-item"><strong>12</strong> DOMAINS SCORED</div>
+</div>
+
+<!-- ── What You Get ──────────────────────────────────────────────── -->
+<section id="what-you-get">
+  <div class="section-label">What You Get</div>
+  <h2>A COMPLETE <em>AI OS</em> REPORT</h2>
+  <p class="section-intro">Not a checklist. A scored, structured, actionable report that tells you exactly where your AI product stands — and what to do about it.</p>
+
+  <div class="audit-grid">
+    <div class="audit-card">
+      <div class="audit-card-icon">◎</div>
+      <h3>AI OS Score</h3>
+      <p>Your product scored 0–100 across 60 controls, weighted by domain criticality. You get an overall score, 12 domain scores, and a maturity band.</p>
+    </div>
+    <div class="audit-card">
+      <div class="audit-card-icon">◈</div>
+      <h3>Certification Level</h3>
+      <p>Earn an AIOS-L1 through AIOS-L5 certification. Each level has clear thresholds, so you know exactly what's needed to advance.</p>
+    </div>
+    <div class="audit-card">
+      <div class="audit-card-icon">⊞</div>
+      <h3>Full Gap Register</h3>
+      <p>Every gap documented: domain, severity (critical / major / moderate), estimated score impact, and the exact remediation action needed.</p>
+    </div>
+    <div class="audit-card">
+      <div class="audit-card-icon">◇</div>
+      <h3>Lapse Register</h3>
+      <p>Active lapses identified: memory lapses, policy lapses, execution lapses, and human oversight lapses — each with severity and fix.</p>
+    </div>
+    <div class="audit-card">
+      <div class="audit-card-icon">↺</div>
+      <h3>90-Day Roadmap</h3>
+      <p>A phased remediation plan: P0 pre-launch blockers in 30 days, L3 path in 60 days, and maturity hardening by day 90.</p>
+    </div>
+    <div class="audit-card">
+      <div class="audit-card-icon">⊙</div>
+      <h3>Risk Register</h3>
+      <p>Active risks classified by likelihood × impact, with a risk score and recommended owner. No surprises six months later.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── How It Works ──────────────────────────────────────────────── -->
+<section id="how-it-works" style="padding-top:0">
+  <div class="section-label">Process</div>
+  <h2>HOW THE <em>AUDIT</em> WORKS</h2>
+  <p class="section-intro">Four steps from form submission to scored report. No black box — every score is traceable to specific controls and evidence.</p>
+
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <h3>Submit Form</h3>
+      <p>Tell us about your AI product: stack, current modules, DB provider, and which AI capabilities you've shipped.</p>
+      <div class="step-arrow">→</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <h3>Evidence Review</h3>
+      <p>We evaluate your product against all 60 controls across 12 domains. Each control is scored 0–5 with documented rationale.</p>
+      <div class="step-arrow">→</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <h3>Score & Certify</h3>
+      <p>Domain scores are weighted and aggregated into your overall AI OS score. Certification level assigned based on threshold gates.</p>
+      <div class="step-arrow">→</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">04</div>
+      <h3>Receive Report</h3>
+      <p>Your full report delivered as a structured PDF and interactive dashboard — gap register, roadmap, risk register included.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 12 Domains ────────────────────────────────────────────────── -->
+<section id="domains">
+  <div class="section-label">Evaluation Framework</div>
+  <h2>12 DOMAINS. <em>60 CONTROLS.</em></h2>
+  <p class="section-intro">The AIOS-STANDARD-v1.0 framework covers every layer of a production AI system — from tenant isolation to observability to open-standard readiness.</p>
+
+  <div class="domains-layout">
+    <div class="domain-list">
+      <div class="domain-row">
+        <span class="domain-row-num">01</span>
+        <span class="domain-row-name">IDENTITY & CONTEXT</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">8%</span>
+      </div>
+      <div class="domain-row">
+        <span class="domain-row-num">02</span>
+        <span class="domain-row-name">MEMORY & STATE</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">8%</span>
+      </div>
+      <div class="domain-row">
+        <span class="domain-row-num">03</span>
+        <span class="domain-row-name">AGENT ORCHESTRATION</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">10%</span>
+      </div>
+      <div class="domain-row">
+        <span class="domain-row-num">04</span>
+        <span class="domain-row-name">TOOL / ACTION EXECUTION</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">9%</span>
+      </div>
+      <div class="domain-row">
+        <span class="domain-row-num">05</span>
+        <span class="domain-row-name">WORKFLOW ENGINE</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">9%</span>
+      </div>
+      <div class="domain-row">
+        <span class="domain-row-num">06</span>
+        <span class="domain-row-name">KNOWLEDGE RETRIEVAL</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">8%</span>
+      </div>
+      <div class="domain-row">
+        <span class="domain-row-num">07</span>
+        <span class="domain-row-name">POLICY ENGINE</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">9%</span>
+      </div>
+      <div class="domain-row">
+        <span class="domain-row-num">08</span>
+        <span class="domain-row-name">INTERFACE & EXPERIENCE</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">7%</span>
+      </div>
+      <div class="domain-row">
+        <span class="domain-row-num">09</span>
+        <span class="domain-row-name">SECURITY & TRUST</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">10%</span>
+      </div>
+      <div class="domain-row">
+        <span class="domain-row-num">10</span>
+        <span class="domain-row-name">OBSERVABILITY</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">8%</span>
+      </div>
+      <div class="domain-row">
+        <span class="domain-row-num">11</span>
+        <span class="domain-row-name">EXTENSIBILITY</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">7%</span>
+      </div>
+      <div class="domain-row">
+        <span class="domain-row-num">12</span>
+        <span class="domain-row-name">DEPLOYMENT & PORTABILITY</span>
+        <span class="domain-row-controls">5 controls</span>
+        <span class="domain-row-weight">7%</span>
+      </div>
+    </div>
+
+    <div class="domains-explainer">
+      <div class="explainer-block">
+        <h4>Scoring Model</h4>
+        <p>Each control is scored 0–5: <em>Missing → Ad-hoc → Partial → Functional → Production-grade → Standard-ready.</em> Domain score = average × 20 (0–100 scale).</p>
+      </div>
+      <div class="explainer-block">
+        <h4>Weighted Aggregation</h4>
+        <p>Domains are weighted by operational criticality. Security (10%) and Agents (10%) carry the most weight. A zero in Policy Engine alone costs you 9 points overall.</p>
+      </div>
+      <div class="explainer-block">
+        <h4>Evidence-Based</h4>
+        <p>Every score is justified by specific evidence: table existence, RLS verification, cross-tenant test results, tool registry inspection. No guesswork.</p>
+      </div>
+      <div class="explainer-block">
+        <h4>Repeatable</h4>
+        <p>Run the audit every quarter. Track your score over time. The 90-day roadmap is designed to improve your score by 15–25 points per cycle.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Certification Ladder ──────────────────────────────────────── -->
+<section id="certification" style="padding-top:0">
+  <div class="section-label">Certification Pathway</div>
+  <h2>FIVE LEVELS.<br><em>ONE DIRECTION.</em></h2>
+  <p class="section-intro">Every AI product starts somewhere on this ladder. Most first-time audits land at L1 or L2. The roadmap shows you the path to L3 and beyond.</p>
+
+  <div class="cert-ladder">
+    <div class="cert-row">
+      <div class="cert-level-badge achieved">AIOS-L1</div>
+      <div class="cert-row-content">
+        <div class="cert-row-title">AI ENABLED APPLICATION</div>
+        <div class="cert-row-desc">AI features present: LLM calls, basic automation, prompt-to-response flow. No AI OS infrastructure.</div>
+      </div>
+      <div class="cert-row-threshold">25+</div>
+    </div>
+    <div class="cert-row current">
+      <div class="cert-level-badge current-level">AIOS-L2</div>
+      <div class="cert-row-content">
+        <div class="cert-row-title">WORKFLOW AI PLATFORM</div>
+        <div class="cert-row-desc">Event-driven workflows, basic agent execution, auth controls. Operational but not observable or policy-governed.</div>
+      </div>
+      <div class="cert-row-threshold">38+</div>
+    </div>
+    <div class="cert-row">
+      <div class="cert-level-badge future">AIOS-L3</div>
+      <div class="cert-row-content">
+        <div class="cert-row-title">OPERATIONAL AI OS</div>
+        <div class="cert-row-desc">Full agent registry, policy engine, observability traces, memory with permissions, tool approval gates. Production-ready for enterprise.</div>
+      </div>
+      <div class="cert-row-threshold">55+</div>
+    </div>
+    <div class="cert-row">
+      <div class="cert-level-badge future">AIOS-L4</div>
+      <div class="cert-row-content">
+        <div class="cert-row-title">ENTERPRISE AI OS</div>
+        <div class="cert-row-desc">All domains above 45. Human oversight loops. Full audit trail. SLOs defined. Plugin ecosystem. Self-hostable. Compliance-ready.</div>
+      </div>
+      <div class="cert-row-threshold">70+</div>
+    </div>
+    <div class="cert-row">
+      <div class="cert-level-badge future">AIOS-L5</div>
+      <div class="cert-row-content">
+        <div class="cert-row-title">OPEN STANDARD REFERENCE</div>
+        <div class="cert-row-desc">Standardization-ready. Open manifests. Provider-agnostic. Documented extension points. Contribution guide. Can serve as reference implementation.</div>
+      </div>
+      <div class="cert-row-threshold">90+</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DB Providers ──────────────────────────────────────────────── -->
+<div class="providers-section">
+<section id="providers">
+  <div class="section-label">Database Support</div>
+  <h2>ANY DATABASE.<br><em>ONE ADAPTER.</em></h2>
+  <p class="section-intro">Zenith AI OS is <strong>database-agnostic by design.</strong> We ship nine adapters. Use the one that fits your stack — or bring your own. Supabase is one option, not the default.</p>
+
+  <div class="db-grid">
+    <div class="db-card">
+      <div class="db-icon">⬡</div>
+      <div class="db-info">
+        <h4>POSTGRES (node-postgres)</h4>
+        <p>AWS RDS, GCP Cloud SQL, Railway, Render, Fly.io, DigitalOcean — any standard Postgres 15+</p>
+        <span class="db-vector-badge">pgvector ✓</span>
+      </div>
+    </div>
+    <div class="db-card">
+      <div class="db-icon">◈</div>
+      <div class="db-info">
+        <h4>SUPABASE</h4>
+        <p>Cloud or self-hosted. Direct connection via service role key recommended for server-side operations.</p>
+        <span class="db-vector-badge">pgvector ✓</span>
+      </div>
+    </div>
+    <div class="db-card">
+      <div class="db-icon">◎</div>
+      <div class="db-info">
+        <h4>NEON SERVERLESS</h4>
+        <p>Branching for test/preview environments. HTTP pooler for edge runtimes. Built-in pgvector extension.</p>
+        <span class="db-vector-badge">pgvector ✓</span>
+      </div>
+    </div>
+    <div class="db-card">
+      <div class="db-icon">◇</div>
+      <div class="db-info">
+        <h4>PLANETSCALE</h4>
+        <p>Vitess-based MySQL-compatible. Ideal for horizontal scale. Semantic search falls back to keyword matching.</p>
+        <span class="db-vector-badge fallback">keyword fallback</span>
+      </div>
+    </div>
+    <div class="db-card">
+      <div class="db-icon">⊕</div>
+      <div class="db-info">
+        <h4>TURSO / LIBSQL</h4>
+        <p>Distributed SQLite at the edge. Excellent for multi-region reads. Perfect for edge deployments.</p>
+        <span class="db-vector-badge fallback">keyword fallback</span>
+      </div>
+    </div>
+    <div class="db-card">
+      <div class="db-icon">⬢</div>
+      <div class="db-info">
+        <h4>COCKROACHDB</h4>
+        <p>Distributed SQL with Postgres compatibility. pgvector supported via CockroachDB vector index.</p>
+        <span class="db-vector-badge">pgvector ✓</span>
+      </div>
+    </div>
+    <div class="db-card">
+      <div class="db-icon">⊞</div>
+      <div class="db-info">
+        <h4>PRISMA ORM</h4>
+        <p>Use any Prisma-supported database. Pass the Prisma client directly. Full $queryRaw support.</p>
+        <span class="db-vector-badge fallback">depends on DB</span>
+      </div>
+    </div>
+    <div class="db-card">
+      <div class="db-icon">⊙</div>
+      <div class="db-info">
+        <h4>DRIZZLE ORM</h4>
+        <p>Type-safe ORM adapter. Any Drizzle-supported dialect — Postgres, MySQL, SQLite, LibSQL.</p>
+        <span class="db-vector-badge fallback">depends on DB</span>
+      </div>
+    </div>
+    <div class="db-card">
+      <div class="db-icon">↺</div>
+      <div class="db-info">
+        <h4>CUSTOM ADAPTER</h4>
+        <p>Implement the <code style="font-size:.8em;color:var(--gold)">DatabaseAdapter</code> interface. DynamoDB, Firestore, EdgeDB, SingleStore — any DB you need.</p>
+        <span class="db-vector-badge fallback">bring your own</span>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ── Social Proof ──────────────────────────────────────────────── -->
+<section id="proof" style="padding-top:0">
+  <div class="section-label">Audit Results</div>
+  <h2>REAL PRODUCTS.<br><em>REAL SCORES.</em></h2>
+  <p class="section-intro">Sample audit results from products evaluated with the AIOS-STANDARD-v1.0 framework. Names anonymised.</p>
+
+  <div class="proof-grid">
+    <div class="proof-card">
+      <div class="proof-score">38.7</div>
+      <div class="proof-score-band">AIOS-L2 · Emerging AI Platform</div>
+      <p class="proof-quote">"We thought we were building an AI OS. The audit revealed we had a well-dressed API wrapper. The gap register was uncomfortable to read — and exactly what we needed."</p>
+      <div class="proof-author">
+        CTO, B2B CRM Platform
+        <span>Series A · 45 employees</span>
+      </div>
+    </div>
+    <div class="proof-card">
+      <div class="proof-score">62.4</div>
+      <div class="proof-score-band">AIOS-L3 · Functional AI OS</div>
+      <p class="proof-quote">"The policy engine gap cost us a major enterprise deal. After the audit and the 60-day remediation sprint, we closed two new enterprise accounts in the following quarter."</p>
+      <div class="proof-author">
+        Founder, Legal AI Platform
+        <span>Seed · 12 employees</span>
+      </div>
+    </div>
+    <div class="proof-card">
+      <div class="proof-score">74.1</div>
+      <div class="proof-score-band">AIOS-L4 · Enterprise AI OS</div>
+      <p class="proof-quote">"We used the report as a technical due diligence document in our Series B raise. Investors appreciated the structured maturity model — it made our roadmap credible."</p>
+      <div class="proof-author">
+        VP Engineering, Healthcare AI
+        <span>Series B · 90 employees</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Audit Form ─────────────────────────────────────────────────── -->
+<div class="form-section" id="audit-form">
+  <div style="max-width:1280px;margin:0 auto;padding:0 48px;">
+    <div class="form-layout">
+      <div class="form-left">
+        <div class="section-label">Free AI OS Audit</div>
+        <h2>SUBMIT YOUR<br><em>PRODUCT.</em></h2>
+        <p>Fill out the form with your product details. We evaluate your product against all 60 AIOS-STANDARD controls and return a full scored report within 48 hours.</p>
+        <div class="form-trust">
+          <div class="trust-item">60-control evaluation across all 12 domains</div>
+          <div class="trust-item">Full gap register with severity classification</div>
+          <div class="trust-item">Certification level assigned with evidence</div>
+          <div class="trust-item">30/60/90-day remediation roadmap</div>
+          <div class="trust-item">Risk register with owner recommendations</div>
+          <div class="trust-item">Delivered as PDF + interactive dashboard</div>
+          <div class="trust-item">100% free — no credit card, no catch</div>
+        </div>
+      </div>
+
+      <div class="audit-form">
+        <div class="form-header">START YOUR AUDIT</div>
+        <div class="form-subheader">Takes 5 minutes. Report in 48 hours.</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name <span>*</span></label>
+            <input class="form-input" type="text" placeholder="Olufemi">
+          </div>
+          <div class="form-group">
+            <label>Last Name <span>*</span></label>
+            <input class="form-input" type="text" placeholder="Adeyemo">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Work Email <span>*</span></label>
+          <input class="form-input" type="email" placeholder="you@company.com">
+        </div>
+
+        <div class="form-group">
+          <label>Product / Company Name <span>*</span></label>
+          <input class="form-input" type="text" placeholder="Acme AI Platform">
+        </div>
+
+        <div class="form-group">
+          <label>Product URL</label>
+          <input class="form-input" type="url" placeholder="https://your-product.com">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Primary DB Provider <span>*</span></label>
+            <select class="form-input form-select">
+              <option value="" disabled selected>Select provider</option>
+              <option>Supabase</option>
+              <option>Postgres (raw)</option>
+              <option>Neon</option>
+              <option>PlanetScale</option>
+              <option>Turso / LibSQL</option>
+              <option>CockroachDB</option>
+              <option>MongoDB</option>
+              <option>Prisma ORM</option>
+              <option>Drizzle ORM</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>AI Provider</label>
+            <select class="form-input form-select">
+              <option>Anthropic Claude</option>
+              <option>OpenAI</option>
+              <option>Both</option>
+              <option>Other / Self-hosted</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Which modules are already in production?</label>
+          <div class="form-checklist">
+            <label class="check-option"><input type="checkbox"> Agent / LLM execution</label>
+            <label class="check-option"><input type="checkbox"> Tool / function calling</label>
+            <label class="check-option"><input type="checkbox"> Workflow automation</label>
+            <label class="check-option"><input type="checkbox"> RAG / knowledge retrieval</label>
+            <label class="check-option"><input type="checkbox"> Memory / session state</label>
+            <label class="check-option"><input type="checkbox"> Policy / access control</label>
+            <label class="check-option"><input type="checkbox"> Observability / tracing</label>
+            <label class="check-option"><input type="checkbox"> Multi-tenant / RLS</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Biggest AI Challenge Right Now</label>
+          <textarea class="form-input" rows="3" placeholder="e.g. No visibility into agent failures, enterprise customers asking for audit logs..."></textarea>
+        </div>
+
+        <button class="submit-btn" onclick="handleSubmit()">
+          SUBMIT FOR FREE AUDIT →
+        </button>
+        <p class="form-disclaimer">No spam. No credit card. Report delivered to your email in 48 hours.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Final CTA ──────────────────────────────────────────────────── -->
+<div style="position:relative;z-index:1;">
+<section class="final-cta">
+  <div class="glow-gold" style="left:50%;top:50%;transform:translate(-50%,-50%);"></div>
+  <div class="section-label" style="justify-content:center;">Don't Ship Blind</div>
+  <h2>KNOW YOUR<br><em>NUMBER.</em></h2>
+  <p>Every AI product has an AI OS score. Most builders don't know theirs until they lose an enterprise deal or have a production incident. Know yours now — for free.</p>
+  <a href="#audit-form" class="btn-primary" style="font-size:.85rem;padding:18px 48px;">
+    Get My Free Audit Score →
+  </a>
+</section>
+</div>
+
+<!-- ── Footer ────────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-left">© 2025 ZENITH AI OS · AIOS-STANDARD-v1.0 · MIT LICENSE</div>
+  <ul class="footer-links">
+    <li><a href="#">Framework Docs</a></li>
+    <li><a href="#">GitHub</a></li>
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+</footer>
+
+<!-- ── Success Modal ──────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon">⊞</div>
+    <h3>AUDIT SUBMITTED</h3>
+    <p>Your AI OS audit request has been received. Expect your full scored report — with gap register, certification level, and 90-day roadmap — within 48 hours.</p>
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('active')">CLOSE</button>
+  </div>
+</div>
+
+<script>
+  function handleSubmit() {
+    document.getElementById('modal').classList.add('active');
+  }
+
+  // Animate score ring on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('in-view');
+    });
+  }, { threshold: 0.2 });
+
+  document.querySelectorAll('.audit-card, .step-card, .domain-row, .cert-row, .db-card, .proof-card').forEach(el => observer.observe(el));
+
+  // Marquee separator
+  const sep = document.querySelector('.separator');
+  if (sep) {
+    const items = sep.innerHTML;
+    sep.innerHTML = items + items;
+    let pos = 0;
+    setInterval(() => {
+      pos -= 0.5;
+      const totalW = sep.scrollWidth / 2;
+      if (Math.abs(pos) >= totalW) pos = 0;
+      sep.style.transform = `translateX(${pos}px)`;
+    }, 16);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "name": "zenith-aios",
+  "version": "1.0.0",
+  "description": "Zenith AI OS — A reusable, multi-tenant, open-standard-ready AI Operating System",
+  "private": true,
+  "license": "MIT",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:migrate": "supabase db push",
+    "db:seed": "node scripts/seed/run-seed.js",
+    "db:reset": "supabase db reset",
+    "audit:run": "node scripts/audit/run-audit.js",
+    "audit:report": "node scripts/audit/generate-report.js"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0"
+  },
+  "engines": { "node": ">=20.0.0" }
+}

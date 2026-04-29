@@ -1,0 +1,71 @@
+{
+  "name": "zenith-aios",
+  "version": "1.1.0",
+  "description": "Zenith AI OS — AIOS-STANDARD audit and certification framework for production AI systems with regional governance compliance overlays",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite src/landing",
+    "build": "vite build src/landing",
+    "preview": "vite preview",
+    "agent": "node src/agent/audit-agent.js",
+    "agent:dev": "node --watch src/agent/audit-agent.js",
+    "score": "node src/scoring/aios-standard.js",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src/**/*.js",
+    "format": "prettier --write src/**/*.{js,json,html,css}",
+    "docs:serve": "npx serve docs"
+  },
+  "keywords": [
+    "ai-governance",
+    "ai-audit",
+    "aios-standard",
+    "responsible-ai",
+    "eu-ai-act",
+    "nist-ai-rmf",
+    "iso-42001",
+    "compliance",
+    "llm",
+    "agent-framework"
+  ],
+  "author": "Zenith AI <hello@zenith.ai>",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "zod": "^3.23.8",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "rate-limiter-flexible": "^5.0.3",
+    "winston": "^3.13.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "vite": "^5.3.1",
+    "vitest": "^1.6.0",
+    "eslint": "^9.5.0",
+    "prettier": "^3.3.2",
+    "@vitest/coverage-v8": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zenith-ai/zenith-aios.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zenith-ai/zenith-aios/issues"
+  },
+  "homepage": "https://zenith.ai/aios",
+  "aios": {
+    "framework_version": "1.1.0",
+    "domains": 13,
+    "controls": 65,
+    "regions_supported": ["EU", "US", "UK", "SG", "CA", "GLOBAL"],
+    "governance_domain_weight": 0.12,
+    "certification_levels": ["L1", "L2", "L3", "L4", "L5"]
+  }
+}
