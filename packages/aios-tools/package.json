@@ -1,4 +1,14 @@
 {
+  "name": "@zenith-aios/tools",
+  "version": "1.0.0",
+  "description": "Tool/action execution bus",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "lint": "eslint src",
   "name": "@zenith/aios-tools",
   "version": "0.1.0",
   "private": true,
@@ -14,6 +24,12 @@
   },
   "dependencies": {
     "zod": "^3.23.0",
+    "@supabase/supabase-js": "^2.43.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0",
+    "@types/node": "^20.0.0"
     "uuid": "^9.0.0"
   },
   "devDependencies": {
