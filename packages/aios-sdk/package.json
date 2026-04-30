@@ -13,6 +13,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@zenith/aios-core": "workspace:*",
     "@zenith/aios-context": "workspace:*",
     "@zenith/aios-memory": "workspace:*",
     "@zenith/aios-agents": "workspace:*",
