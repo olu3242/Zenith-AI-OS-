@@ -534,12 +534,12 @@
   <p class="section-intro">The AIOS base score is universal. But the law isn't. Select your operating region and see which additional mandatory controls apply — and how they affect your score.</p>
 
   <div class="region-tabs">
-    <button class="region-tab active" onclick="showRegion('eu')">🇪🇺 EU AI Act</button>
-    <button class="region-tab" onclick="showRegion('us')">🇺🇸 NIST / EO 14110</button>
-    <button class="region-tab" onclick="showRegion('uk')">🇬🇧 UK AI Framework</button>
-    <button class="region-tab" onclick="showRegion('sg')">🇸🇬 Singapore MAS</button>
-    <button class="region-tab" onclick="showRegion('ca')">🇨🇦 Canada AIDA</button>
-    <button class="region-tab" onclick="showRegion('iso')">🌏 ISO 42001</button>
+    <button class="region-tab active" onclick="showRegion('eu',this)">🇪🇺 EU AI Act</button>
+    <button class="region-tab" onclick="showRegion('us',this)">🇺🇸 NIST / EO 14110</button>
+    <button class="region-tab" onclick="showRegion('uk',this)">🇬🇧 UK AI Framework</button>
+    <button class="region-tab" onclick="showRegion('sg',this)">🇸🇬 Singapore MAS</button>
+    <button class="region-tab" onclick="showRegion('ca',this)">🇨🇦 Canada AIDA</button>
+    <button class="region-tab" onclick="showRegion('iso',this)">🌏 ISO 42001</button>
   </div>
 
   <!-- EU -->
@@ -1201,11 +1201,11 @@ FORMAT: Give clear, structured answers. Use bullet points for lists of controls.
   });
 
   // ── REGION TABS ───────────────────────────────────────────────────
-  function showRegion(id) {
+  function showRegion(id, btn) {
     document.querySelectorAll('.region-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.region-tab').forEach(el => el.classList.remove('active'));
     document.getElementById('region-' + id).classList.add('active');
-    event.target.classList.add('active');
+    btn.classList.add('active');
   }
 
   // ── FAQ ───────────────────────────────────────────────────────────
