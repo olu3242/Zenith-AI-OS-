@@ -1,21 +1,19 @@
 {
-  "name": "zenith-aios",
+  "name": "zenith-ai-os",
+  "private": true,
   "version": "1.1.0",
   "description": "Zenith AI OS — AIOS-STANDARD audit and certification framework for production AI systems with regional governance compliance overlays",
-  "main": "src/index.js",
-  "type": "module",
   "scripts": {
-    "dev": "vite src/landing",
-    "build": "vite build src/landing",
-    "preview": "vite preview",
-    "agent": "node src/agent/audit-agent.js",
-    "agent:dev": "node --watch src/agent/audit-agent.js",
-    "score": "node src/scoring/aios-standard.js",
-    "test": "vitest",
-    "test:coverage": "vitest --coverage",
-    "lint": "eslint src/**/*.js",
-    "format": "prettier --write src/**/*.{js,json,html,css}",
-    "docs:serve": "npx serve docs"
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "test": "turbo run test",
+    "test:integration": "turbo run test:integration",
+    "test:coverage": "turbo run test:coverage",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean",
+    "audit:run": "node scripts/audit/run-audit.js",
+    "start": "node src/server.js"
   },
   "keywords": [
     "ai-governance",
@@ -43,65 +41,15 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "vite": "^5.3.1",
-    "vitest": "^1.6.0",
-    "eslint": "^9.5.0",
-    "prettier": "^3.3.2",
-    "@vitest/coverage-v8": "^1.6.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/zenith-ai/zenith-aios.git"
-  },
-  "bugs": {
-    "url": "https://github.com/zenith-ai/zenith-aios/issues"
-  },
-  "homepage": "https://zenith.ai/aios",
-  "aios": {
-    "framework_version": "1.1.0",
-    "domains": 13,
-    "controls": 65,
-    "regions_supported": ["EU", "US", "UK", "SG", "CA", "GLOBAL"],
-    "governance_domain_weight": 0.12,
-    "certification_levels": ["L1", "L2", "L3", "L4", "L5"]
-  }
-  "name": "zenith-ai-os",
-  "private": true,
-  "version": "1.1.0",
-  "description": "A reusable, multi-tenant, open-standard-ready AI Operating System",
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
-    "test": "turbo run test",
-    "test:integration": "turbo run test:integration",
-    "test:coverage": "turbo run test:coverage",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "clean": "turbo run clean",
-    "audit:run": "node scripts/audit/run-audit.js",
-    "start": "node src/server.js"
-  },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.24.0",
-    "express": "^4.19.0",
-    "helmet": "^7.1.0",
-    "rate-limiter-flexible": "^5.0.0",
-    "winston": "^3.13.0",
-    "zod": "^3.23.0"
-  },
-  "devDependencies": {
     "turbo": "^2.0.0",
     "typescript": "^5.4.0",
     "@types/node": "^20.12.0",
     "vitest": "^1.6.0",
     "@vitest/coverage-v8": "^1.6.0",
-    "eslint": "^8.57.0",
+    "eslint": "^9.5.0",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
-    "prettier": "^3.2.0"
+    "prettier": "^3.3.2"
   },
   "workspaces": [
     "packages/*",
@@ -111,5 +59,13 @@
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
   },
-  "packageManager": "pnpm@9.1.0"
+  "packageManager": "pnpm@9.1.0",
+  "aios": {
+    "framework_version": "1.1.0",
+    "domains": 13,
+    "controls": 65,
+    "regions_supported": ["EU", "US", "UK", "SG", "CA", "GLOBAL"],
+    "governance_domain_weight": 0.12,
+    "certification_levels": ["L1", "L2", "L3", "L4", "L5"]
+  }
 }
