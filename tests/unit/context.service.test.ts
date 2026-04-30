@@ -2,153 +2,93 @@
  * @zenith/aios-context — ContextService Unit Tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ContextService, ContextResolutionError } from '../../packages/aios-context/src/context.service';
-
-// ─── Mocks ─────────────────────────────────────────────────────────────────
-
-const mockDb = {
-  query: vi.fn(),
-};
-
-const mockLogger = {
-  info: vi.fn(),
-  error: vi.fn(),
-};
-
-const mockAuditLogger = {
-  log: vi.fn().mockResolvedValue(undefined),
-};
+import { describe, it, expect, beforeEach } from 'vitest';
+import { ContextService, InMemoryContextStore } from '../../packages/aios-context/src/ContextService.js';
 
 function makeService() {
-  return new ContextService({
-    db: mockDb,
-    logger: mockLogger,
-    auditLogger: mockAuditLogger,
-  });
+  return new ContextService(new InMemoryContextStore());
 }
 
-// ─── Tests ─────────────────────────────────────────────────────────────────
-
 describe('ContextService', () => {
-  beforeEach(() => vi.clearAllMocks());
+  let svc: ContextService;
+  beforeEach(() => { svc = makeService(); });
 
-  describe('resolve()', () => {
-    it('returns a valid context bundle when session exists', async () => {
-      mockDb.query.mockResolvedValueOnce({
-        rows: [{
-          workspace_id: 'ws-1',
-          role: 'admin',
-          permissions: ['agent:run', 'tool:invoke'],
-          active_intent: 'lead-qualification',
-          workflow_id: null,
-          agent_id: null,
-          context_items: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }],
-      });
-
-      const svc = makeService();
-      const bundle = await svc.resolve({
-        sessionId: 'session-uuid',
-        organizationId: 'org-uuid',
-        userId: 'user-uuid',
-      });
-
-      expect(bundle.role).toBe('admin');
-      expect(bundle.permissions).toContain('agent:run');
-      expect(bundle.intent).toBe('lead-qualification');
+  describe('create()', () => {
+    it('creates a session with a generated sessionId', async () => {
+      const ctx = await svc.create({ organizationId: 'org-1', userId: 'user-1', role: 'developer' });
+      expect(ctx.sessionId).toBeTruthy();
+      expect(ctx.organizationId).toBe('org-1');
+      expect(ctx.userId).toBe('user-1');
+      expect(ctx.role).toBe('developer');
     });
 
-    it('throws ContextResolutionError when session not found', async () => {
-      mockDb.query.mockResolvedValueOnce({ rows: [] });
-
-      const svc = makeService();
-      await expect(
-        svc.resolve({ sessionId: 'bad', organizationId: 'org', userId: 'user' })
-      ).rejects.toBeInstanceOf(ContextResolutionError);
+    it('respects a caller-supplied sessionId', async () => {
+      const ctx = await svc.create({ sessionId: 'my-id', organizationId: 'org-1', userId: 'u1', role: 'developer' });
+      expect(ctx.sessionId).toBe('my-id');
     });
   });
 
-  describe('set()', () => {
-    it('calls db.query with correct update statement', async () => {
-      mockDb.query.mockResolvedValueOnce({ rows: [] });
+  describe('get()', () => {
+    it('returns null for unknown sessionId', async () => {
+      const result = await svc.get('nonexistent');
+      expect(result).toBeNull();
+    });
 
-      const svc = makeService();
-      await svc.set('session-1', 'org-1', {
-        key: 'customer_id',
-        value: 'cust_abc',
-        source: 'user',
-        confidence: 1,
-      });
-
-      expect(mockDb.query).toHaveBeenCalledTimes(1);
-      expect(mockAuditLogger.log).toHaveBeenCalledWith('CONTEXT_ITEM_SET', expect.objectContaining({ key: 'customer_id' }));
+    it('returns the context after create', async () => {
+      const created = await svc.create({ organizationId: 'org-1', userId: 'u1', role: 'developer' });
+      const fetched = await svc.get(created.sessionId);
+      expect(fetched).not.toBeNull();
+      expect(fetched!.sessionId).toBe(created.sessionId);
     });
   });
 
-  describe('checkFreshness()', () => {
-    it('detects expired context items', async () => {
-      const svc = makeService();
-      const bundle = {
-        sessionId: 's1',
-        organizationId: 'o1',
-        workspaceId: 'w1',
-        userId: 'u1',
-        role: 'admin',
-        permissions: [],
-        items: {
-          stale_item: {
-            key: 'stale_item',
-            value: 'old',
-            source: 'user' as const,
-            confidence: 1,
-            expiresAt: new Date(Date.now() - 60_000).toISOString(), // 1 minute ago
-          },
-          fresh_item: {
-            key: 'fresh_item',
-            value: 'new',
-            source: 'user' as const,
-            confidence: 1,
-            expiresAt: new Date(Date.now() + 60_000).toISOString(), // 1 minute from now
-          },
-        },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+  describe('getOrCreate()', () => {
+    it('creates when session does not exist', async () => {
+      const ctx = await svc.getOrCreate({ sessionId: 'new-id', organizationId: 'org-1', userId: 'u1', role: 'developer' });
+      expect(ctx.sessionId).toBe('new-id');
+    });
 
-      const { stale } = await svc.checkFreshness(bundle);
-      expect(stale).toContain('stale_item');
-      expect(stale).not.toContain('fresh_item');
+    it('returns existing session without overwriting', async () => {
+      const first = await svc.create({ sessionId: 'stable', organizationId: 'org-1', userId: 'u1', role: 'developer' });
+      const second = await svc.getOrCreate({ sessionId: 'stable', organizationId: 'org-1', userId: 'u1', role: 'analyst' });
+      expect(second.role).toBe('developer'); // unchanged
+      expect(second.sessionId).toBe(first.sessionId);
     });
   });
 
-  describe('propagate()', () => {
-    it('propagates non-expired context items', () => {
-      const svc = makeService();
-      const bundle = {
-        sessionId: 's1',
-        organizationId: 'o1',
-        workspaceId: 'w1',
-        userId: 'u1',
-        role: 'admin',
-        permissions: [],
-        items: {
-          active_key: {
-            key: 'active_key',
-            value: 'val',
-            source: 'agent' as const,
-            confidence: 0.9,
-          },
-        },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+  describe('update()', () => {
+    it('merges patch into existing session', async () => {
+      const ctx = await svc.create({ organizationId: 'org-1', userId: 'u1', role: 'developer' });
+      const updated = await svc.update(ctx.sessionId, { role: 'analyst' });
+      expect(updated.role).toBe('analyst');
+      expect(updated.userId).toBe('u1');
+    });
 
-      const propagated = svc.propagate(bundle, 'agent');
-      expect(propagated.active_key).toBe('val');
-      expect((propagated._ctx as Record<string, unknown>).organizationId).toBe('o1');
+    it('throws when session not found', async () => {
+      await expect(svc.update('ghost', { role: 'admin' })).rejects.toThrow('Session not found');
+    });
+  });
+
+  describe('delete()', () => {
+    it('removes the session', async () => {
+      const ctx = await svc.create({ organizationId: 'org-1', userId: 'u1', role: 'developer' });
+      await svc.delete(ctx.sessionId);
+      const result = await svc.get(ctx.sessionId);
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('list()', () => {
+    it('returns only sessions for the given org', async () => {
+      await svc.create({ organizationId: 'org-A', userId: 'u1', role: 'developer' });
+      await svc.create({ organizationId: 'org-A', userId: 'u2', role: 'developer' });
+      await svc.create({ organizationId: 'org-B', userId: 'u3', role: 'developer' });
+
+      const orgA = await svc.list('org-A');
+      const orgB = await svc.list('org-B');
+
+      expect(orgA).toHaveLength(2);
+      expect(orgB).toHaveLength(1);
     });
   });
 });

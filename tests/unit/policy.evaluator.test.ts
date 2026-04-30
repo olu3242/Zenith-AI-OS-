@@ -2,128 +2,110 @@
  * @zenith/aios-policy — PolicyEvaluator Unit Tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { PolicyEvaluator, PolicyDefinition } from '../../packages/aios-policy/src/policy.evaluator';
-
-const mockDb = { query: vi.fn().mockResolvedValue({ rows: [] }) };
-const mockAuditLogger = { log: vi.fn().mockResolvedValue(undefined) };
-const mockLogger = { info: vi.fn() };
+import { describe, it, expect, beforeEach } from 'vitest';
+import { PolicyEvaluator } from '../../packages/aios-policy/src/PolicyEvaluator.js';
+import type { PolicyRule, EvaluationContext } from '../../packages/aios-policy/src/types.js';
 
 function makeEvaluator() {
-  return new PolicyEvaluator({ db: mockDb, auditLogger: mockAuditLogger, logger: mockLogger });
+  return new PolicyEvaluator();
+}
+
+function ctx(overrides: Partial<EvaluationContext> = {}): EvaluationContext {
+  return { userId: 'u1', orgId: 'org1', metadata: {}, ...overrides };
 }
 
 describe('PolicyEvaluator', () => {
-  beforeEach(() => vi.clearAllMocks());
+  let evaluator: PolicyEvaluator;
+  beforeEach(() => { evaluator = makeEvaluator(); });
 
-  describe('evaluate() — system baseline', () => {
-    it('denies unauthenticated requests (no userId)', async () => {
-      const evaluator = makeEvaluator();
-      const decision = await evaluator.evaluate('agent.execute', { orgId: 'org1' });
-
+  describe('default deny', () => {
+    it('denies when no rules are registered', () => {
+      const decision = evaluator.evaluate('agent.execute', ctx());
       expect(decision.allowed).toBe(false);
-      expect(decision.effect).toBe('deny');
-      expect(decision.matchedRules.some(r => r.name.includes('unauthenticated'))).toBe(true);
-    });
-
-    it('requires approval for critical risk actions', async () => {
-      const evaluator = makeEvaluator();
-      const decision = await evaluator.evaluate('tool.invoke', {
-        userId: 'u1',
-        orgId: 'org1',
-        riskLevel: 'critical',
-      });
-
-      expect(decision.requiresApproval).toBe(true);
-      expect(decision.effect).toBe('require_approval');
-    });
-
-    it('allows authenticated users by default', async () => {
-      const evaluator = makeEvaluator();
-      const decision = await evaluator.evaluate('knowledge.read', {
-        userId: 'u1',
-        orgId: 'org1',
-      });
-
-      expect(decision.allowed).toBe(true);
-    });
-
-    it('returns a risk score', async () => {
-      const evaluator = makeEvaluator();
-      const decision = await evaluator.evaluate('agent.execute', { userId: 'u1', orgId: 'o1' });
-      expect(typeof decision.riskScore).toBe('number');
-      expect(decision.riskScore).toBeGreaterThanOrEqual(0);
+      expect(decision.reason).toMatch(/default deny/i);
     });
   });
 
-  describe('registerPolicy()', () => {
-    it('adds a custom policy that denies specific actions', async () => {
-      const evaluator = makeEvaluator();
-
-      evaluator.registerPolicy({
-        id: 'policy-test',
-        name: 'Test Policy',
-        version: '1.0.0',
-        level: 'organization',
-        enabled: true,
-        rules: [
-          {
-            id: 'rule-deny-export',
-            policyId: 'policy-test',
-            name: 'Deny data export',
-            level: 'organization',
-            action: 'data.export',
-            effect: 'deny',
-            riskScore: 80,
-            priority: 100,
-          },
-        ],
-      });
-
-      const decision = await evaluator.evaluate('data.export', { userId: 'u1', orgId: 'org1' });
-      expect(decision.allowed).toBe(false);
-      expect(decision.effect).toBe('deny');
+  describe('addRule() + evaluate()', () => {
+    it('allows an action when a matching allow rule exists', () => {
+      const rule: PolicyRule = {
+        id: 'r1', name: 'Allow reads', domain: 'agent',
+        action: 'knowledge.read', effect: 'allow',
+        conditions: [], priority: 10,
+      };
+      evaluator.addRule(rule);
+      const d = evaluator.evaluate('knowledge.read', ctx());
+      expect(d.allowed).toBe(true);
+      expect(d.matchedRule?.id).toBe('r1');
     });
 
-    it('wildcard action matches any action', async () => {
-      const evaluator = makeEvaluator();
+    it('denies an action when a matching deny rule exists', () => {
+      const rule: PolicyRule = {
+        id: 'r2', name: 'Deny exports', domain: 'data',
+        action: 'data.export', effect: 'deny',
+        conditions: [], priority: 10,
+      };
+      evaluator.addRule(rule);
+      const d = evaluator.evaluate('data.export', ctx());
+      expect(d.allowed).toBe(false);
+    });
 
-      evaluator.registerPolicy({
-        id: 'policy-block-all',
-        name: 'Block All Non-Admin',
-        version: '1.0.0',
-        level: 'organization',
-        enabled: true,
-        rules: [
-          {
-            id: 'rule-non-admin',
-            policyId: 'policy-block-all',
-            name: 'Block non-admins',
-            level: 'organization',
-            action: '*',
-            condition: 'ctx.role !== "admin"',
-            effect: 'deny',
-            riskScore: 50,
-            priority: 500,
-          },
-        ],
+    it('wildcard action * matches any action', () => {
+      evaluator.addRule({
+        id: 'r3', name: 'Allow all', domain: 'agent',
+        action: '*', effect: 'allow',
+        conditions: [], priority: 100,
       });
+      expect(evaluator.evaluate('anything.goes', ctx()).allowed).toBe(true);
+      expect(evaluator.evaluate('tool.invoke', ctx()).allowed).toBe(true);
+    });
 
-      const deniedDecision = await evaluator.evaluate('tool.invoke', { userId: 'u1', orgId: 'o1', role: 'viewer' });
-      expect(deniedDecision.allowed).toBe(false);
-
-      const allowedDecision = await evaluator.evaluate('tool.invoke', { userId: 'u1', orgId: 'o1', role: 'admin' });
-      expect(allowedDecision.allowed).toBe(true);
+    it('higher priority (lower number) rule wins', () => {
+      evaluator.addRule({ id: 'low', name: 'Low priority allow', domain: 'agent', action: 'tool.invoke', effect: 'allow', conditions: [], priority: 100 });
+      evaluator.addRule({ id: 'high', name: 'High priority deny', domain: 'agent', action: 'tool.invoke', effect: 'deny', conditions: [], priority: 1 });
+      const d = evaluator.evaluate('tool.invoke', ctx());
+      expect(d.allowed).toBe(false);
+      expect(d.matchedRule?.id).toBe('high');
     });
   });
 
-  describe('simulate()', () => {
-    it('returns same result as evaluate but logs simulation event', async () => {
-      const evaluator = makeEvaluator();
-      const simResult = await evaluator.simulate('tool.invoke', { userId: 'u1', orgId: 'o1' });
+  describe('conditions', () => {
+    it('applies eq condition correctly', () => {
+      evaluator.addRule({
+        id: 'r-eq', name: 'Admin only', domain: 'agent', action: 'admin.action', effect: 'allow',
+        conditions: [{ field: 'role', operator: 'eq', value: 'admin' }],
+        priority: 10,
+      });
+      expect(evaluator.evaluate('admin.action', ctx({ metadata: { role: 'admin' } })).allowed).toBe(true);
+      expect(evaluator.evaluate('admin.action', ctx({ metadata: { role: 'viewer' } })).allowed).toBe(false);
+    });
 
-      expect(typeof simResult.allowed).toBe('boolean');
-      expect(mockAuditLogger.log).toHaveBeenCalledWith('POLICY_SIMULATION', expect.any(Object));
+    it('applies in condition correctly', () => {
+      evaluator.addRule({
+        id: 'r-in', name: 'Roles in list', domain: 'agent', action: 'tool.read', effect: 'allow',
+        conditions: [{ field: 'role', operator: 'in', value: ['admin', 'developer'] }],
+        priority: 10,
+      });
+      expect(evaluator.evaluate('tool.read', ctx({ metadata: { role: 'developer' } })).allowed).toBe(true);
+      expect(evaluator.evaluate('tool.read', ctx({ metadata: { role: 'viewer' } })).allowed).toBe(false);
+    });
+  });
+
+  describe('removeRule()', () => {
+    it('removes the rule so it no longer applies', () => {
+      evaluator.addRule({ id: 'r-remove', name: 'Temp', domain: 'agent', action: 'tool.invoke', effect: 'allow', conditions: [], priority: 10 });
+      expect(evaluator.evaluate('tool.invoke', ctx()).allowed).toBe(true);
+      evaluator.removeRule('r-remove');
+      expect(evaluator.evaluate('tool.invoke', ctx()).allowed).toBe(false);
+    });
+  });
+
+  describe('prefix wildcard', () => {
+    it('matches read:* prefix to read:anything', () => {
+      evaluator.addRule({ id: 'r-prefix', name: 'Allow reads', domain: 'data', action: 'read:*', effect: 'allow', conditions: [], priority: 10 });
+      expect(evaluator.evaluate('read:knowledge', ctx()).allowed).toBe(true);
+      expect(evaluator.evaluate('read:memory', ctx()).allowed).toBe(true);
+      expect(evaluator.evaluate('write:knowledge', ctx()).allowed).toBe(false);
     });
   });
 });
