@@ -339,6 +339,62 @@
   .modal h3 { font-family: var(--font-display); font-size: 2.5rem; letter-spacing: 0.08em; color: var(--gold); margin-bottom: 12px; }
   .modal p { font-size: 1rem; color: var(--muted); line-height: 1.65; margin-bottom: 28px; }
   .modal-close { background: var(--gold); color: var(--black); border: none; padding: 14px 32px; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; }
+
+  /* ── LIZ FLOATING CHAT AGENT ─────────────────────────────────── */
+  .liz-bubble { position:fixed; bottom:28px; right:28px; z-index:600; width:58px; height:58px; background:var(--gold); border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 24px rgba(232,184,75,0.4); transition:transform .2s,box-shadow .2s; border:none; }
+  .liz-bubble:hover { transform:scale(1.1); box-shadow:0 6px 36px rgba(232,184,75,0.55); }
+  .liz-bubble-icon { font-size:1.5rem; color:var(--black); line-height:1; }
+  .liz-bubble-badge { position:absolute; top:-3px; right:-3px; width:20px; height:20px; background:var(--green); border-radius:50%; border:2px solid var(--black); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:0.5rem; color:var(--black); font-weight:bold; }
+  .liz-panel { position:fixed; bottom:98px; right:28px; z-index:600; width:390px; height:570px; background:var(--card); border:1px solid var(--border); display:flex; flex-direction:column; box-shadow:0 24px 64px rgba(0,0,0,0.6); transform:translateY(16px) scale(0.96); opacity:0; pointer-events:none; transition:transform .25s cubic-bezier(.4,0,.2,1),opacity .25s ease; }
+  .liz-panel.open { transform:translateY(0) scale(1); opacity:1; pointer-events:all; }
+  .liz-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; background:var(--surface); flex-shrink:0; }
+  .liz-avatar { width:38px; height:38px; background:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; color:var(--black); }
+  .liz-header-info { flex:1; min-width:0; }
+  .liz-name { font-family:var(--font-display); font-size:1.05rem; letter-spacing:0.12em; color:var(--cream); line-height:1.1; }
+  .liz-title { font-family:var(--font-mono); font-size:0.56rem; color:var(--gold); letter-spacing:0.09em; margin-top:1px; }
+  .liz-online-dot { display:flex; align-items:center; gap:5px; font-family:var(--font-mono); font-size:0.55rem; color:var(--green); }
+  .liz-online-dot::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 2s ease infinite; flex-shrink:0; }
+  .liz-close { background:transparent; border:none; color:var(--muted); font-size:1.3rem; cursor:pointer; padding:4px; line-height:1; flex-shrink:0; }
+  .liz-close:hover { color:var(--cream); }
+  .liz-messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; scrollbar-width:thin; scrollbar-color:var(--border2) transparent; min-height:0; }
+  .liz-msg { max-width:90%; }
+  .liz-msg.bot { align-self:flex-start; }
+  .liz-msg.user { align-self:flex-end; }
+  .liz-msg-bubble { padding:10px 14px; font-size:0.85rem; line-height:1.6; }
+  .liz-msg.bot .liz-msg-bubble { background:var(--surface); border:1px solid var(--border); color:var(--cream); border-radius:0 8px 8px 8px; }
+  .liz-msg.user .liz-msg-bubble { background:rgba(232,184,75,0.1); border:1px solid rgba(232,184,75,0.22); color:var(--cream); border-radius:8px 0 8px 8px; }
+  .liz-msg-name { font-family:var(--font-mono); font-size:0.5rem; letter-spacing:0.09em; color:var(--faint); margin-bottom:3px; }
+  .liz-msg.user .liz-msg-name { text-align:right; }
+  .liz-typing { display:none; align-self:flex-start; }
+  .liz-typing.visible { display:flex; }
+  .liz-typing-bubble { background:var(--surface); border:1px solid var(--border); padding:10px 14px; display:flex; gap:4px; align-items:center; border-radius:0 8px 8px 8px; }
+  .liz-typing-dot { width:5px; height:5px; border-radius:50%; background:var(--muted); animation:typingDot 1.2s ease infinite; }
+  .liz-typing-dot:nth-child(2) { animation-delay:.2s; }
+  .liz-typing-dot:nth-child(3) { animation-delay:.4s; }
+  .liz-escalate-bar { margin:0 14px 10px; background:rgba(79,142,247,0.07); border:1px solid rgba(79,142,247,0.22); padding:9px 14px; display:none; align-items:center; gap:10px; cursor:pointer; transition:background .2s; flex-shrink:0; }
+  .liz-escalate-bar.visible { display:flex; }
+  .liz-escalate-bar:hover { background:rgba(79,142,247,0.14); }
+  .liz-escalate-text { font-family:var(--font-mono); font-size:0.58rem; color:var(--blue); letter-spacing:0.04em; flex:1; line-height:1.4; }
+  .liz-escalate-icon { font-size:0.9rem; color:var(--blue); }
+  .liz-input-area { padding:10px 14px 0; flex-shrink:0; }
+  .liz-quick-replies { display:flex; gap:5px; margin-bottom:8px; flex-wrap:wrap; }
+  .liz-quick-reply { font-family:var(--font-mono); font-size:0.54rem; padding:4px 9px; border:1px solid var(--border2); color:var(--muted); cursor:pointer; background:transparent; transition:all .2s; white-space:nowrap; }
+  .liz-quick-reply:hover { color:var(--gold); border-color:var(--gold2); background:rgba(232,184,75,0.05); }
+  .liz-input-row { display:flex; gap:8px; }
+  .liz-input { flex:1; background:var(--black); border:1px solid var(--border2); color:var(--cream); padding:9px 12px; font-family:var(--font-body); font-size:0.88rem; outline:none; transition:border-color .2s; }
+  .liz-input:focus { border-color:var(--gold); }
+  .liz-input::placeholder { color:var(--faint); font-size:0.8rem; }
+  .liz-send { background:var(--gold); color:var(--black); border:none; padding:9px 14px; font-family:var(--font-mono); font-size:0.65rem; cursor:pointer; transition:background .2s; font-weight:bold; }
+  .liz-send:hover { background:var(--amber); }
+  .liz-send:disabled { opacity:.4; cursor:not-allowed; }
+  .liz-footer { padding:6px 14px 10px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+  .liz-counter { font-family:var(--font-mono); font-size:0.54rem; color:var(--faint); }
+  .liz-note { font-family:var(--font-mono); font-size:0.54rem; color:var(--faint); }
+  .liz-region-bar { padding:6px 14px; border-top:1px solid var(--border); display:flex; align-items:center; gap:6px; flex-shrink:0; }
+  .liz-region-label { font-family:var(--font-mono); font-size:0.54rem; color:var(--faint); }
+  .liz-region-pills { display:flex; gap:4px; flex-wrap:wrap; }
+  .liz-rpill { font-family:var(--font-mono); font-size:0.5rem; padding:2px 7px; border:1px solid var(--border2); color:var(--muted); cursor:pointer; background:transparent; transition:all .15s; }
+  .liz-rpill.active { border-color:var(--gold); color:var(--gold); background:rgba(232,184,75,0.07); }
 </style>
 </head>
 <body>
@@ -732,32 +788,37 @@
   </div>
 </section>
 
-<!-- AI AUDIT AGENT -->
+<!-- LIZ AGENT SECTION -->
 <div class="agent-section" id="agent" style="position:relative;z-index:1;">
 <section>
   <div class="agent-layout">
     <div class="agent-info">
-      <div class="section-label">AI Audit Agent · Guardrailed</div>
-      <h2>ASK THE<br><em>AUDIT AGENT.</em></h2>
-      <p>An AI agent trained on the AIOS framework, all 13 domains, and 6 regional compliance frameworks. Ask it anything about your audit, your gaps, or what a specific control actually means.</p>
-      <div style="margin-bottom:16px;font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;">AGENT GUARDRAILS — WHAT IT WON'T DO:</div>
+      <div class="section-label">Meet Liz · Your AIOS Governance Advisor</div>
+      <h2>ASK <em>LIZ.</em><br>SHE KNOWS AIOS.</h2>
+      <p>Liz is an AI advisor trained on the full AIOS-STANDARD-v1.1 framework — all 13 domains, 65 controls, 6 regional compliance overlays, and the certification ladder from L1 to L5. Ask her anything about your score, your gaps, or what a specific control actually means in practice.</p>
+      <div style="margin:20px 0 10px;font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;">LIZ GUARDRAILS — WHAT SHE WON'T DO:</div>
       <div class="agent-guardrail-list">
         <div class="guardrail-item">Answer questions outside AI audit & governance scope</div>
-        <div class="guardrail-item">Provide legal advice or regulatory interpretations</div>
+        <div class="guardrail-item">Provide legal advice or specific regulatory interpretations</div>
         <div class="guardrail-item">Recommend specific commercial vendors or tools</div>
-        <div class="guardrail-item">Fabricate control scores or audit results</div>
-        <div class="guardrail-item">Exceed 20 questions per session</div>
+        <div class="guardrail-item">Fabricate control scores or audit outcomes</div>
+        <div class="guardrail-item">Exceed 20 messages per session</div>
       </div>
-      <div style="margin-bottom:8px;font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;">WHAT IT WILL DO:</div>
+      <div style="margin:16px 0 8px;font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;">WHAT LIZ WILL DO:</div>
       <div class="agent-guardrail-list">
-        <div class="guardrail-item ok">Explain any AIOS control in plain language</div>
-        <div class="guardrail-item ok">Walk through what a gap means and how to fix it</div>
-        <div class="guardrail-item ok">Compare regional compliance requirements</div>
-        <div class="guardrail-item ok">Help you understand your certification path</div>
+        <div class="guardrail-item ok">Explain any of the 65 AIOS controls in plain language</div>
+        <div class="guardrail-item ok">Walk through exactly what a gap means and how to fix it</div>
+        <div class="guardrail-item ok">Compare what's mandatory across EU, US, UK, SG, CA, ISO</div>
+        <div class="guardrail-item ok">Map the fastest path to your target certification level</div>
+        <div class="guardrail-item ok">Escalate to a human expert when your question needs one</div>
+      </div>
+      <div style="margin-top:24px;padding:16px 20px;border:1px solid var(--border);border-left:2px solid var(--purple);">
+        <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--purple);letter-spacing:0.1em;margin-bottom:6px;">ESCALATION POLICY</div>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.6;">When a question requires legal counsel, company-specific technical review, or goes beyond what Liz can responsibly answer, she will say so clearly and offer to connect you with our specialist team — not guess.</p>
       </div>
     </div>
     <div>
-      <div class="agent-region-label">SELECT YOUR REGION FOR CONTEXT:</div>
+      <div class="agent-region-label">LIZ'S REGION CONTEXT:</div>
       <div class="agent-region-selector" id="agentRegionSelector">
         <span class="region-pill active" onclick="setAgentRegion(this,'EU')">🇪🇺 EU</span>
         <span class="region-pill" onclick="setAgentRegion(this,'US')">🇺🇸 US</span>
@@ -766,33 +827,40 @@
         <span class="region-pill" onclick="setAgentRegion(this,'CA')">🇨🇦 CA</span>
         <span class="region-pill" onclick="setAgentRegion(this,'GLOBAL')">🌏 ISO</span>
       </div>
-      <div class="agent-region-label" style="margin-top:12px;">SUGGESTED QUESTIONS:</div>
+      <div class="agent-region-label" style="margin-top:14px;">ASK LIZ:</div>
       <div class="suggested-questions">
-        <button class="suggested-q" onclick="sendSuggested(this)">What does a zero in Policy Engine mean for my score?</button>
+        <button class="suggested-q" onclick="sendSuggested(this)">What does a zero in Domain 13 (AI Governance) cost me?</button>
         <button class="suggested-q" onclick="sendSuggested(this)">What controls are mandatory under the EU AI Act?</button>
-        <button class="suggested-q" onclick="sendSuggested(this)">How do I reach AIOS-L3 certification?</button>
+        <button class="suggested-q" onclick="sendSuggested(this)">What's the fastest path from AIOS-L2 to L3?</button>
+        <button class="suggested-q" onclick="sendSuggested(this)">How does the regional compliance multiplier work?</button>
       </div>
       <div class="agent-widget">
         <div class="agent-header">
-          <span class="agent-header-title">AIOS AUDIT AGENT · v1.1</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:28px;height:28px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:var(--black);">◈</div>
+            <div>
+              <div style="font-family:var(--font-display);font-size:0.9rem;letter-spacing:0.1em;color:var(--cream);">LIZ</div>
+              <div style="font-family:var(--font-mono);font-size:0.52rem;color:var(--gold);letter-spacing:0.08em;">AIOS GOVERNANCE ADVISOR</div>
+            </div>
+          </div>
           <span class="agent-status" id="agentStatus">ONLINE</span>
         </div>
         <div class="agent-messages" id="agentMessages">
           <div class="agent-msg bot">
-            <div class="agent-msg-sender">AIOS AGENT</div>
-            <div class="agent-msg-bubble">Hello. I'm the AIOS Audit Agent. I can explain any of the 65 controls, help you understand your gaps, or walk through what regional compliance requirements apply to your product.<br><br>What would you like to know?</div>
+            <div class="agent-msg-sender">LIZ · AIOS ADVISOR</div>
+            <div class="agent-msg-bubble">Hi, I'm <strong>Liz</strong> — your AIOS governance advisor.<br><br>I know every control in the framework, how the scoring works, what each regional law requires, and what it takes to reach each certification level. I'll tell you what I know and be upfront when you need a human expert instead.<br><br>What would you like to explore?</div>
           </div>
         </div>
         <div class="agent-typing" id="agentTyping">
           <div class="agent-typing-bubble"><div class="agent-typing-dot"></div><div class="agent-typing-dot"></div><div class="agent-typing-dot"></div></div>
         </div>
         <div class="agent-input-row">
-          <input class="agent-input" id="agentInput" type="text" placeholder="Ask about controls, gaps, regions, certification...">
-          <button class="agent-send" id="agentSendBtn" onclick="sendAgentMessage()">SEND →</button>
+          <input class="agent-input" id="agentInput" type="text" placeholder="Ask Liz about controls, scoring, regions, certification...">
+          <button class="agent-send" id="agentSendBtn" onclick="sendAgentMessage()">ASK →</button>
         </div>
         <div class="agent-footer">
-          <span class="agent-counter" id="agentCounter">0 / 20 questions</span>
-          <span class="agent-guardrail-note">Guardrails active · Not legal advice</span>
+          <span class="agent-counter" id="agentCounter">0 / 20 messages</span>
+          <span class="agent-guardrail-note">Guardrails active · Escalation enabled · Not legal advice</span>
         </div>
       </div>
     </div>
@@ -846,6 +914,7 @@
         <button class="faq-cat-btn" onclick="setFaqCategory(this,'governance')">Governance</button>
         <button class="faq-cat-btn" onclick="setFaqCategory(this,'regional')">Regional</button>
         <button class="faq-cat-btn" onclick="setFaqCategory(this,'certification')">Certification</button>
+        <button class="faq-cat-btn" onclick="setFaqCategory(this,'liz')" style="border-color:var(--gold2);color:var(--gold);">◈ Meet Liz</button>
       </div>
     </div>
     <div>
@@ -942,6 +1011,42 @@
         <div class="faq-item">
           <div class="faq-question" onclick="toggleFaq(this)">Can I use my AIOS score in investor materials or sales? <span class="faq-toggle">+</span></div>
           <div class="faq-answer"><div class="faq-answer-inner">Yes. Several of our audited products have included their AIOS score and gap register in Series A/B due diligence packages. It demonstrates technical maturity and a structured approach to AI risk — both of which are increasingly important to investors and enterprise buyers. The score is your number to share. We recommend sharing the full report with the gap register rather than just the score, as the roadmap shows forward progress.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">Does AIOS-L4 satisfy EU AI Act conformity requirements? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">AIOS-L4 covers the technical controls the EU AI Act requires for high-risk systems — human oversight, audit logs, transparency obligations, bias testing, and governance documentation. However, <strong>AIOS certification is not a substitute for formal EU AI Act conformity assessment</strong>, which may require Notified Body involvement for Annex III use cases. Your AIOS report will map each required control to the relevant EU AI Act article, making the conformity process significantly faster and cheaper. This is not legal advice — consult qualified EU law counsel for your specific situation.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">How often should I re-run the audit? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">We recommend quarterly re-audits for active AI products. The 90-day roadmap is designed to produce a measurable score improvement each cycle. For products with significant AI capability changes — new agent types, new data sources, new regions — audit before each release. For enterprise sales cycles, having an audit dated within the last 90 days carries significantly more weight than one that is 12+ months old.</div></div>
+        </div>
+      </div>
+
+      <!-- MEET LIZ -->
+      <div class="faq-group" id="faq-liz">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">Who is Liz and what is she trained on? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Liz is the Zenith AI OS governance advisor — an AI agent built on the AIOS-STANDARD-v1.1 knowledge base. She is trained on all <strong>13 domains</strong>, all <strong>65 controls</strong>, the <strong>5-level certification ladder</strong> (including governance gates at L3, L4, L5), and the <strong>6 regional compliance frameworks</strong>: EU AI Act, NIST AI RMF + EO 14110, UK AI Framework, Singapore MAS FEAT, Canada AIDA, and ISO/IEC 42001. She knows how scores are calculated, what gaps cost you, and what remediation looks like at each level.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">What guardrails does Liz operate under? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Liz operates under four hard guardrails: <strong>(1) Scope lock</strong> — she will only answer questions about AI audits, governance, and the AIOS framework. Off-topic questions are redirected. <strong>(2) Legal firewall</strong> — she will never provide legal advice or definitive regulatory interpretations. She flags legal-adjacent questions and explicitly recommends qualified legal counsel. <strong>(3) No fabrication</strong> — she will not invent scores, outcomes, or controls. <strong>(4) Session limit</strong> — 20 messages per session to ensure thoughtful usage. The escalation trigger is automatic when your question requires a human expert.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">When does Liz escalate to a human? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Liz escalates when: (1) the question involves specific legal obligations for your product or jurisdiction, (2) you ask for a review of your actual implementation or codebase, (3) you're asking about pricing, contracts, or enterprise engagements, or (4) the question requires access to your specific audit results that she doesn't have. When she escalates, she tells you exactly why and offers to connect you with our specialist team within 24 hours.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">Does Liz have access to my audit results? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">No. Liz operates in a <strong>zero-context mode</strong> — she has no access to your specific audit scores, your form submission, or your product. She can help you understand what controls mean, what gaps cost you, and what remediation looks like, but she cannot tell you what <em>your</em> score is or interpret <em>your</em> specific results. Your actual audit is performed by our team against the 65-control framework and delivered as a structured report within 48 hours of submission.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">What's the difference between asking Liz and submitting for a full audit? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Liz helps you <strong>understand the framework</strong> — what each control means, how scoring works, what regional law requires, what certification levels require. The <strong>free audit</strong> evaluates your <em>specific product</em> against all 65 controls, scores you across all 13 domains, produces a gap register with your actual gaps, and delivers a 30/60/90-day roadmap tailored to your product. Use Liz to learn and prepare; use the audit to get your actual score and actionable roadmap.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">Is Liz available as a floating chat anywhere on the page? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Yes. Click the <strong>◈ gold circle</strong> in the bottom-right corner of any page to open Liz's chat panel. She's available throughout the entire landing page — you don't need to scroll to the Agent section to ask her something. The floating widget supports region selection, quick-reply suggestions, and the same guardrails and escalation logic as the inline section.</div></div>
         </div>
       </div>
     </div>
@@ -1052,6 +1157,69 @@
   </ul>
 </footer>
 
+<!-- ── LIZ FLOATING WIDGET ────────────────────────────────────────── -->
+<button class="liz-bubble" id="lizBubble" onclick="toggleLiz()" aria-label="Chat with Liz — AIOS Advisor">
+  <span class="liz-bubble-icon">◈</span>
+  <span class="liz-bubble-badge">AI</span>
+</button>
+
+<div class="liz-panel" id="lizPanel" role="dialog" aria-label="Chat with Liz">
+  <div class="liz-header">
+    <div class="liz-avatar">◈</div>
+    <div class="liz-header-info">
+      <div class="liz-name">LIZ</div>
+      <div class="liz-title">AIOS GOVERNANCE ADVISOR</div>
+    </div>
+    <div class="liz-online-dot">ONLINE</div>
+    <button class="liz-close" onclick="toggleLiz()" aria-label="Close chat">×</button>
+  </div>
+  <div class="liz-messages" id="lizMessages">
+    <div class="liz-msg bot">
+      <div class="liz-msg-name">LIZ · AIOS ADVISOR</div>
+      <div class="liz-msg-bubble">Hi, I'm <strong>Liz</strong> — your AIOS governance advisor.<br><br>Ask me about the 65 controls, your certification path, regional compliance, or what any gap actually means for your product. I'll be honest when you need a human instead of me.<br><br>What can I help with?</div>
+    </div>
+  </div>
+  <div class="liz-typing" id="lizTyping">
+    <div class="liz-typing-bubble">
+      <div class="liz-typing-dot"></div>
+      <div class="liz-typing-dot"></div>
+      <div class="liz-typing-dot"></div>
+    </div>
+  </div>
+  <div class="liz-escalate-bar" id="lizEscalateBar" onclick="lizEscalate()">
+    <span class="liz-escalate-icon">◎</span>
+    <span class="liz-escalate-text">This question may need a human expert. Connect with our specialist team?</span>
+    <span style="color:var(--blue);font-family:var(--font-mono);font-size:0.65rem;">→</span>
+  </div>
+  <div class="liz-region-bar">
+    <span class="liz-region-label">REGION:</span>
+    <div class="liz-region-pills">
+      <button class="liz-rpill active" onclick="lizSetRegion(this,'EU')">EU</button>
+      <button class="liz-rpill" onclick="lizSetRegion(this,'US')">US</button>
+      <button class="liz-rpill" onclick="lizSetRegion(this,'UK')">UK</button>
+      <button class="liz-rpill" onclick="lizSetRegion(this,'SG')">SG</button>
+      <button class="liz-rpill" onclick="lizSetRegion(this,'CA')">CA</button>
+      <button class="liz-rpill" onclick="lizSetRegion(this,'GLOBAL')">ISO</button>
+    </div>
+  </div>
+  <div class="liz-input-area">
+    <div class="liz-quick-replies" id="lizQuickReplies">
+      <button class="liz-quick-reply" onclick="lizQuick(this)">What is AIOS-L3?</button>
+      <button class="liz-quick-reply" onclick="lizQuick(this)">EU AI Act basics</button>
+      <button class="liz-quick-reply" onclick="lizQuick(this)">Domain 13 score</button>
+      <button class="liz-quick-reply" onclick="lizQuick(this)">Get a free audit</button>
+    </div>
+    <div class="liz-input-row">
+      <input class="liz-input" id="lizInput" type="text" placeholder="Ask Liz about your AI product..." aria-label="Ask Liz">
+      <button class="liz-send" id="lizSendBtn" onclick="lizSend()">→</button>
+    </div>
+  </div>
+  <div class="liz-footer">
+    <span class="liz-counter" id="lizCounter">0 / 20 messages</span>
+    <span class="liz-note">Guardrails active · Not legal advice</span>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-icon">⊞</div>
@@ -1062,197 +1230,488 @@
 </div>
 
 <script>
-  // ── AGENT ────────────────────────────────────────────────────────
-  let agentRegion = 'EU';
-  let questionCount = 0;
-  const MAX_QUESTIONS = 20;
+// ═══════════════════════════════════════════════════════════════════
+// LIZ — AIOS GOVERNANCE ADVISOR
+// Full knowledge base · guardrails · escalation · conversation history
+// ═══════════════════════════════════════════════════════════════════
 
-  function setAgentRegion(el, region) {
-    document.querySelectorAll('.region-pill').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    agentRegion = region;
-  }
+const LIZ = {
+  region: 'EU',
+  count: 0,
+  MAX: 20,
+  history: [],   // conversation history for context
+  panelOpen: false,
 
-  function sendSuggested(btn) {
-    document.getElementById('agentInput').value = btn.textContent;
-    sendAgentMessage();
-  }
+  // ── KNOWLEDGE BASE ──────────────────────────────────────────────
+  KB: {
+    // Domains
+    'domain 13|ai governance|governance domain|control 13': `**Domain 13 — AI Governance** (12% weight, highest single domain)\n\nFive controls:\n• **13.1 Governance Policy** — public, versioned, structured policy doc. CRITICAL if missing.\n• **13.2 Bias & Fairness Testing** — automated in CI/CD. CRITICAL if missing.\n• **13.3 Human Oversight** — documented human-in-the-loop for high-risk decisions. CRITICAL.\n• **13.4 Explainability** — full trace, confidence scores, model card. MAJOR if missing.\n• **13.5 Ethics Review Process** — formal review gate before new AI capabilities ship. MAJOR.\n\nA zero in Domain 13 costs you **12 points** and blocks L3+ certification.`,
 
-  async function sendAgentMessage() {
-    const input = document.getElementById('agentInput');
-    const msg = input.value.trim();
-    if (!msg || questionCount >= MAX_QUESTIONS) return;
+    'domain 1|identity|context|session': `**Domain 01 — Identity & Context** (7% weight)\n\nCovers: SessionContext management, tenant isolation, organisational hierarchy, role-based access, and session TTL/expiry. Five controls scored 0–5.`,
 
-    // Guardrail: scope check
-    const offTopic = isOffTopic(msg);
-    if (offTopic) {
-      appendMessage('bot', "I can only answer questions about the AIOS framework, AI governance, controls, scoring, and regional compliance. Could you rephrase your question within that scope?");
-      input.value = '';
-      return;
+    'domain 2|memory|state|short.term|long.term': `**Domain 02 — Memory & State** (7% weight)\n\nCovers: short-term session memory, long-term entity memory, memory permissions, retrieval accuracy, and memory decay policies. Five controls scored 0–5.`,
+
+    'domain 3|agent|orchestration|agent.runner|registry': `**Domain 03 — Agent Orchestration** (9% weight)\n\nCovers: AgentRegistry design, tool-calling loop reliability, multi-agent coordination, agent isolation, and graceful failure. Five controls. 9% weight — second highest alongside Security.`,
+
+    'domain 4|tool|action|execution|function.call': `**Domain 04 — Tool / Action Execution** (8% weight)\n\nCovers: ToolBus implementation, approval gates for high-risk actions, tool input validation, sandboxing, and audit logging of all tool invocations.`,
+
+    'domain 5|workflow|engine|dead.letter|step': `**Domain 05 — Workflow Engine** (8% weight)\n\nCovers: WorkflowEngine design, step execution reliability, dead-letter queue for failed steps, retry logic, and workflow observability.`,
+
+    'domain 6|knowledge|rag|retrieval|vector|hallucination': `**Domain 06 — Knowledge Retrieval** (7% weight)\n\nCovers: RAG pipeline quality, vector store configuration, trust scoring of retrieved content, hallucination guard, and citation accuracy.`,
+
+    'domain 7|policy.engine|policy engine|access.control|content.filter': `**Domain 07 — Policy Engine** (8% weight)\n\nCovers: hierarchical rules engine (system→user), content filtering, rate limiting, tool approval gates, and usage policy enforcement in code.\n\nA zero here costs 8 points and is classified as **CRITICAL** in the gap register. It will block L3 certification since enterprise-readiness requires access control.`,
+
+    'domain 8|interface|experience|ux|user': `**Domain 08 — Interface & Experience** (6% weight)\n\nCovers: AI disclosure to users, response streaming quality, error message clarity, accessibility, and user-facing transparency.`,
+
+    'domain 9|security|trust|injection|pii|prompt.injection': `**Domain 09 — Security & Trust** (9% weight)\n\nCovers: prompt injection detection, PII redaction, tenant data isolation, authentication hardening, and security audit logging.\n\n9% weight — tied with Agent Orchestration for second highest.`,
+
+    'domain 10|observability|tracing|span|monitoring|logging': `**Domain 10 — Observability** (7% weight)\n\nCovers: distributed tracing (AIOSTracer), quality scoring, latency monitoring, error rate tracking, and audit log completeness.`,
+
+    'domain 11|extensibility|plugin|provider': `**Domain 11 — Extensibility** (6% weight)\n\nCovers: plugin architecture quality, LLM provider abstraction (Anthropic/OpenAI), hot-swappable providers, and plugin isolation.`,
+
+    'domain 12|deployment|portability|docker|infra': `**Domain 12 — Deployment & Portability** (7% weight)\n\nCovers: containerisation, infrastructure-as-code, provider portability, deployment automation, and rollback capability.`,
+
+    // Scoring
+    'how.*score|score.*calculat|weight|calculat': `**How AIOS scoring works:**\n\nEach of the 65 controls is scored **0–5**:\n0 = Missing · 1 = Ad-hoc · 2 = Partial · 3 = Functional · 4 = Production-grade · 5 = Standard-ready\n\nDomain score = (sum of control scores / max possible) × 100\n\nOverall score = weighted average across all active domains:\n• AI Governance: **12%**\n• Security, Agent Orchestration: **9%** each\n• Tool Execution, Workflow, Policy Engine, Memory, Knowledge, Deployment: **7–8%**\n• Interface, Extensibility: **6%** each\n\nRegional multiplier (0.85–1.0) applies AFTER base score.`,
+
+    'grade|grade label|what.*grade|grading': `**Grade thresholds:**\n• **A+** (90+) — Exceptional\n• **A** (80+) — Strong\n• **B+** (70+) — Proficient\n• **B** (55+) — Developing\n• **C** (38+) — Basic\n• **D** (25+) — Minimal\n• **F** (0–24) — Non-compliant`,
+
+    'multiplier|regional.*score|score.*region|compliance.*score': `**Regional compliance multiplier:**\nYour base score × multiplier = regional score.\n\n| Region | Multiplier |\n|--------|------------|\n| US (NIST/EO 14110) | ×1.00 |\n| SG (MAS FEAT) | ×0.98 |\n| UK (AI Framework) | ×0.97 |\n| CA (AIDA) | ×0.97 |\n| EU (AI Act) | ×0.95 |\n| GLOBAL (ISO 42001) | ×0.90 |\n\nMultiplier is based on your mandatory gate pass rate. The floor is 0.85 — no region will drop your score below that regardless of gate failures.`,
+
+    // Certification
+    'l1|aios.l1|level 1': `**AIOS-L1 — AI-Enabled Application** (score ≥ 25)\n\nAI features present: LLM calls, basic automation, prompt-to-response. No AI OS infrastructure. No governance gate required at this level.`,
+
+    'l2|aios.l2|level 2': `**AIOS-L2 — Workflow AI Platform** (score ≥ 38)\n\nEvent-driven workflows, basic agent execution, auth controls. Operational but not fully observable or policy-governed. No governance gate required.`,
+
+    'l3|aios.l3|level 3|operational': `**AIOS-L3 — Operational AI OS** (score ≥ 55, Domain 13 ≥ 40)\n\nFull agent registry, policy engine, observability, memory with permissions, tool approval gates. Production-ready for enterprise.\n\n**Governance gate:** Domain 13 must score ≥ 40. A governance policy document (13.1) and human oversight mechanism (13.3) are the minimum to clear this gate.\n\n**Fastest path from L2:** Ship 13.1 (governance policy doc) + 13.3 (human oversight), build basic policy engine rate limits (Domain 07), add agent observability traces (Domain 10). Achievable in a 60-day sprint.`,
+
+    'l4|aios.l4|level 4|enterprise': `**AIOS-L4 — Enterprise AI OS** (score ≥ 70, Domain 13 ≥ 60)\n\nAll domains above 45. Human oversight loops. Full audit trail. SLOs defined. Plugin ecosystem. Compliance-ready for EU AI Act / ISO 42001.\n\n**Governance gate:** Domain 13 ≥ 60 — requires bias testing in CI/CD (13.2) and documented human oversight (13.3) in addition to governance policy.`,
+
+    'l5|aios.l5|level 5|open standard': `**AIOS-L5 — Open Standard Reference** (score ≥ 90, Domain 13 ≥ 80)\n\nStandardisation-ready. Open manifests. Provider-agnostic. Full ethics review process. ISO 42001 aligned. Can serve as reference implementation.\n\n**Governance gate:** Domain 13 ≥ 80 — requires full governance stack including ethics review process (13.5) and external audit recommendation.`,
+
+    'certification.*path|path.*certif|how.*certif|reach.*l': `**Certification ladder:**\n• **L1** ≥ 25 — no governance gate\n• **L2** ≥ 38 — no governance gate\n• **L3** ≥ 55 + Domain 13 ≥ 40\n• **L4** ≥ 70 + Domain 13 ≥ 60\n• **L5** ≥ 90 + Domain 13 ≥ 80\n\nThe fastest path to L3: governance policy doc (13.1) + human oversight (13.3) + basic policy engine (D07) + observability traces (D10). Most L2 products achieve this in a 60-day sprint.`,
+
+    // Regional
+    'eu ai act|eu act|regulation 2024|article 14|annex iii|high.risk': `**EU AI Act** (Regulation 2024/1689, in force Aug 2024)\n\nScore multiplier: ×0.95\nMandatory gates: transparency, human-oversight, accountability, ai-governance, security\n\nKey requirements for high-risk AI:\n• **Art. 5** — Prohibited use assessment (biometric, social scoring, manipulative AI)\n• **Art. 14** — Human oversight mechanism\n• **Art. 11** — Technical documentation\n• **Art. 53** — GPAI model transparency (if applicable)\n• **Annex III** — Conformity assessment for high-risk categories\n\nFines: up to €35M or 7% of global annual turnover.\n\n⚠️ This is not legal advice — consult qualified EU law counsel for your specific situation.`,
+
+    'nist|eo 14110|executive order|govern.*map|us framework': `**US Framework — NIST AI RMF 1.0 + EO 14110** (Oct 2023)\n\nScore multiplier: ×1.00 (lightest mandatory gate structure)\nMandatory gates: security, accountability, transparency\n\nFour core functions:\n• **GOVERN** — AI governance framework documented\n• **MAP** — AI risk mapping process\n• **MEASURE** — Risk measurement and testing\n• **MANAGE** — Incident response mechanism\n\nEO 14110 adds safety evaluations for dual-use foundation models and red-teaming requirements.\n\nNote: US guidance is largely voluntary for commercial products but is becoming the de-facto procurement standard for federal contracts.`,
+
+    'uk framework|uk ai|data protection act|fca|ico|cqc': `**UK AI Regulation Framework** (Pro-innovation approach, 2023)\n\nScore multiplier: ×0.97\nMandatory gates: safety, transparency, fairness, accountability, human-oversight\n\nFive cross-sector principles:\n1. Safety & Security\n2. Transparency & Explainability\n3. Fairness\n4. Accountability & Governance\n5. Contestability & Redress\n\nNo single binding AI law — sector regulators (FCA, ICO, CQC, Ofcom) apply principles within their remit. UK GDPR (DPA 2018) applies to AI data processing.`,
+
+    'singapore|mas feat|pdpa|mas.*ai|sg.*framework': `**Singapore — MAS FEAT + Model AI Governance Framework v2**\n\nScore multiplier: ×0.98\nMandatory gates (financial services): fairness, ethics, accountability, transparency\n\nFEAT principles:\n• **F**airness — bias testing, demographic parity\n• **E**thics — ethics board or review process\n• **A**ccountability — senior accountability for AI decisions\n• **T**ransparency — disclosure of AI-generated outputs\n\nPDPA data protection impact assessment required for AI data processing. Moving towards mandatory requirements for high-impact decisions.`,
+
+    'canada|aida|bill c.27|pipeda|ised': `**Canada — AIDA (Bill C-27) + Directive on Automated Decision-Making**\n\nScore multiplier: ×0.97\nMandatory gates: transparency, accountability, human-oversight, privacy\n\nTargets "high-impact AI systems" affecting employment, healthcare, criminal justice.\nKey requirements:\n• High-impact system designation and documented risk assessment\n• Human oversight for high-impact decisions\n• Plain-language disclosure to affected individuals\n• Incident reporting to the AI and Data Commissioner\n\nAIDA not yet in force (expected following royal assent) but enterprise procurement teams are already evaluating against it.`,
+
+    'iso 42001|iso42001|global.*framework|ai management system': `**ISO/IEC 42001:2023 — AI Management System Standard**\n\nScore multiplier: ×0.90 (strictest universal baseline)\nMandatory gates: ai-governance, accountability, transparency, risk-management\n\nThe international standard for AI management systems — the AI equivalent of ISO 27001. Certifiable by accredited bodies.\n\nKey clauses:\n• **5.2** — AI policy statement\n• **6.1** — AI risk assessment\n• **6.2** — AI objectives and planning\n• **9.2** — Internal audit programme\n• **9.3** — Management review\n• **10.2** — Continual improvement\n\nIncreasingly required in enterprise procurement and preferred for multi-jurisdiction operations.`,
+
+    // Gap / remediation
+    'gap|remediat|fix|improve|priority': `**Gap prioritisation in AIOS:**\n\nGaps are scored by: base gap size + domain boost + status boost\n• **AI Governance (D13):** +20 priority boost\n• **Security & Human Oversight:** +10 boost each\n• **Fail status:** +15 over partial\n\nPriority thresholds:\n• **Critical** (≥70 combined) — address before certification\n• **High** (≥50) — address in 30-day sprint\n• **Medium** (≥30) — 60-day window\n• **Low** (<30) — 90-day roadmap\n\nEffort estimates: critical=4w, high=2w, medium=1w, low=0.5w`,
+
+    // Governance controls detail
+    'governance policy|control 13.1|13.1': `**Control 13.1 — Governance Policy Document** (CRITICAL if missing)\n\nRequirements for a compliant policy:\n✓ Public and linkable from your product or website\n✓ Versioned (dated, with changelog)\n✓ Structured document (not a blog post)\n✓ Scope of AI use defined\n✓ Core principles stated\n✓ Prohibited uses listed\n✓ Human oversight mechanisms described\n✓ Named responsible party\n✓ Update cadence defined\n\nA blog post about "responsible AI" does not qualify. Minimum for L3 clearance.`,
+
+    'bias|fairness test|control 13.2|13.2': `**Control 13.2 — Bias & Fairness Testing** (CRITICAL if missing)\n\nScoring:\n• 0/5 — No bias testing\n• 2/5 — Manual review before major releases\n• 3/5 — Documented process, threshold defined\n• 4/5 — Automated in CI/CD (required for L4)\n• 5/5 — Continuous with demographic parity monitoring\n\nTools that provide evaluation primitives: Fairlearn, AI Fairness 360. You need to write the CI/CD integration and define your own thresholds. EU AI Act and Singapore MAS FEAT both mandate this for high-risk AI.`,
+
+    'human oversight|control 13.3|13.3|human.in.the.loop': `**Control 13.3 — Human Oversight Mechanism** (CRITICAL if missing)\n\nRequired for L3+ certification and mandatory under EU AI Act Art. 14.\n\nWhat it requires:\n✓ Documented mechanism for human review of high-risk AI decisions\n✓ Automated escalation trigger (e.g. confidence < threshold)\n✓ Logged override trail (who reviewed, what decision, timestamp)\n✓ Human can stop, modify, or reject AI output\n\nThis is different from Policy Engine (D07). D07 = automated access control. D13.3 = human decision authority for consequential outcomes.`,
+
+    'explainab|control 13.4|13.4|model card': `**Control 13.4 — Explainability & Auditability** (MAJOR if missing)\n\nRequirements:\n✓ Full execution trace for AI decisions\n✓ Confidence scores exposed (not just final output)\n✓ Published model card (inputs, outputs, known limitations)\n✓ Users and regulators can understand why a specific output was produced\n✓ Adverse decision explanation available to affected individuals\n\nMandatory under EU AI Act for GPAI models (Art. 53) and Singapore MAS FEAT Transparency principle.`,
+
+    'ethics review|control 13.5|13.5|ethics board': `**Control 13.5 — Ethics Review Process** (MAJOR if missing)\n\nScaling by team size:\n• Teams <10: structured checklist before each major AI capability ship = 3/5\n• Teams 10–50: designated ethics reviewer with sign-off authority = 4/5\n• Dedicated ethics board with documented outcomes = 5/5\n\nYou don't need to over-engineer this at L2. The gap register will show the minimum viable version for your current certification target.`,
+
+    // Free audit
+    'free audit|get.*audit|submit.*audit|start.*audit|how.*audit': `**Getting your free AIOS audit:**\n\n1. Scroll to the audit form (or click "Get Free Audit" in the nav)\n2. Fill in your product details: company name, region, AI provider, DB, modules in production\n3. Submit — no credit card, no catch\n4. Receive your full report within **48 hours**: overall score, 13 domain scores, certification level, gap register, regional compliance score, and 30/60/90-day roadmap\n\nFor complex enterprise products a brief technical walkthrough may be requested (+24h turnaround).`,
+
+    // Framework overview
+    'what is aios|what.*framework|aios standard|zenith ai os': `**AIOS-STANDARD-v1.1** is an open audit and certification framework for production AI systems.\n\nIt evaluates your product across:\n• **13 domains** covering every layer of an AI OS\n• **65 controls** scored 0–5 each\n• **6 regional compliance overlays** (EU, US, UK, SG, CA, ISO 42001)\n• **5 certification levels** (L1–L5)\n\nDomain 13 (AI Governance) is new in v1.1 and carries the highest single weight at 12%. You can't reach L3+ without meeting the governance gate (Domain 13 ≥ 40).\n\nThe audit is free, no credit card required.`,
+  },
+
+  // ── ESCALATION TRIGGERS ─────────────────────────────────────────
+  ESCALATE_PATTERNS: [
+    /am i (legally )?required/i,
+    /will (i|we) be fined/i,
+    /does (my|our) (specific|actual|current)/i,
+    /review (my|our) (code|codebase|implementation|product)/i,
+    /how much does (it )?cost/i,
+    /pricing|enterprise (plan|contract|pricing)/i,
+    /sign.*contract|get.*certified.*officially/i,
+    /specific.*legal.*obligation/i,
+    /our.*lawyers?|legal.*team.*asking/i,
+  ],
+
+  // ── OFF-TOPIC GUARD ─────────────────────────────────────────────
+  TOPICS: ['aios','audit','control','domain','score','governance','compliance',
+    'eu ai act','nist','iso 42001','iso42001','certification','certif','l1','l2',
+    'l3','l4','l5','policy','bias','fairness','oversight','observability','agent',
+    'workflow','security','gap','register','roadmap','remediat','eu','uk',
+    'singapore','canada','regional','framework','responsible ai','explainab',
+    'ethics','liz','maturity','band','multiplier','weight','domain 1','domain 2',
+    'domain 3','domain 4','domain 5','domain 6','domain 7','domain 8','domain 9',
+    'domain 10','domain 11','domain 12','domain 13','13.1','13.2','13.3','13.4',
+    '13.5','human oversight','bias testing','governance policy','mas feat','aida',
+    'free audit','what is','how does','how do','what does','what are','help me',
+    'explain','tell me','fastest path'],
+
+  isOffTopic(msg) {
+    const lower = msg.toLowerCase();
+    return !this.TOPICS.some(t => lower.includes(t));
+  },
+
+  needsEscalation(msg) {
+    return this.ESCALATE_PATTERNS.some(p => p.test(msg));
+  },
+
+  // ── KB LOOKUP (fallback when API unavailable) ───────────────────
+  lookup(msg) {
+    const lower = msg.toLowerCase();
+    for (const [pattern, answer] of Object.entries(this.KB)) {
+      const parts = pattern.split('|');
+      if (parts.some(p => {
+        try { return new RegExp(p.replace(/\./g,'\\.')).test(lower); }
+        catch { return lower.includes(p.replace(/\./g,'.')); }
+      })) return answer;
     }
+    return null;
+  },
 
-    input.value = '';
-    questionCount++;
-    document.getElementById('agentCounter').textContent = `${questionCount} / ${MAX_QUESTIONS} questions`;
+  // ── SYSTEM PROMPT ───────────────────────────────────────────────
+  systemPrompt() {
+    return `You are Liz — the Zenith AI OS governance advisor, an AI assistant for the AIOS-STANDARD-v1.1 framework.
 
-    appendMessage('user', msg);
-    showTyping(true);
+PERSONA: Friendly, knowledgeable, precise. You give direct answers. You acknowledge uncertainty honestly. You never over-apologise.
 
-    const btn = document.getElementById('agentSendBtn');
-    btn.disabled = true;
+SCOPE — Answer ONLY questions about:
+- AIOS-STANDARD-v1.1 framework: 13 domains, 65 controls, scoring model, certification ladder
+- AI governance, responsible AI, Domain 13 controls (13.1–13.5)
+- Regional compliance: EU AI Act (Reg 2024/1689), NIST AI RMF + EO 14110, UK AI Framework, Singapore MAS FEAT / MAIGF v2, Canada AIDA (Bill C-27), ISO/IEC 42001:2023
+- Audit gap analysis, gap prioritisation, remediation guidance, certification path
+- AI product maturity, production AI architecture, AI OS design
 
-    try {
-      const systemPrompt = buildSystemPrompt();
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          system: systemPrompt,
-          messages: [{ role: 'user', content: msg }]
-        })
-      });
+GUARDRAILS — You MUST:
+- Refuse off-topic questions politely and redirect to AIOS scope
+- Never provide specific legal advice. When legal-adjacent: answer the framework question, then add "⚠️ This is not legal advice — consult qualified legal counsel for your specific regulatory obligations."
+- Never recommend specific commercial vendors or products by name
+- Never fabricate scores, control results, or audit outcomes
+- When a question requires review of their actual product/code, acknowledge it and suggest the free audit
 
-      const data = await response.json();
-      const text = data.content?.[0]?.text || 'I encountered an issue generating a response. Please try again.';
+ESCALATION — Say "I'd recommend connecting with our specialist team for this" when:
+- User asks about their specific legal obligations for their product
+- User wants their actual implementation reviewed
+- Question involves pricing, contracts, or enterprise engagements
 
-      // Output guardrail
-      const safe = outputGuardrail(text);
-      showTyping(false);
-      appendMessage('bot', safe);
-    } catch (err) {
-      showTyping(false);
-      appendMessage('bot', 'I\'m having trouble connecting right now. Please try again in a moment.');
-    }
-
-    btn.disabled = false;
-    if (questionCount >= MAX_QUESTIONS) {
-      btn.disabled = true;
-      appendMessage('bot', 'You\'ve reached the session limit of 20 questions. Submit your product for a full audit to continue the conversation with our team.');
-    }
-  }
-
-  function buildSystemPrompt() {
-    return `You are the AIOS Audit Agent — an AI assistant for the Zenith AI OS audit framework (AIOS-STANDARD-v1.1).
-
-IDENTITY: You help users understand the AIOS framework, their audit results, and regional compliance requirements. You are knowledgeable, precise, and helpful.
-
-SCOPE — You ONLY answer questions about:
-- The AIOS-STANDARD-v1.1 framework (13 domains, 65 controls, scoring model)
-- AI governance, responsible AI, and Domain 13 controls
-- Regional compliance: EU AI Act, NIST AI RMF, UK AI Framework, Singapore MAS FEAT, Canada AIDA, ISO 42001
-- Audit gap analysis, certification levels (L1–L5), and remediation guidance
-- AI product maturity and production AI system architecture
-
-GUARDRAILS — You MUST refuse to:
-- Provide legal advice or definitive legal interpretations. Always add: "This is not legal advice — consult qualified counsel."
-- Recommend specific commercial vendors, tools, or products by name
-- Fabricate specific scores, control results, or audit outcomes not provided to you
-- Answer questions unrelated to AI audits, governance, and AIOS
-
-CURRENT REGION CONTEXT: ${agentRegion}
+CURRENT REGION: ${this.region}
 
 FRAMEWORK KNOWLEDGE:
-- 13 domains, 65 controls. Domain 13 (AI Governance) carries 12% weight — the highest single domain
-- Domain 13 controls: 13.1 Governance Policy, 13.2 Bias Testing, 13.3 Human Oversight, 13.4 Explainability, 13.5 Ethics Review
-- Certification levels: L1(25+), L2(38+), L3(55+ with D13≥40), L4(70+ with D13≥60), L5(90+ with D13≥80)
-- Regional overlay applies compliance multiplier (0.85–1.0) based on mandatory control pass rate
+13 domains, 65 controls. Domain 13 (AI Governance) = 12% weight (highest).
+Domain 13 controls: 13.1 Governance Policy, 13.2 Bias Testing, 13.3 Human Oversight, 13.4 Explainability, 13.5 Ethics Review.
+Certification: L1(≥25), L2(≥38), L3(≥55, D13≥40), L4(≥70, D13≥60), L5(≥90, D13≥80).
+Regional multipliers: EU×0.95, UK×0.97, CA×0.97, SG×0.98, US×1.0, GLOBAL(ISO)×0.90.
+Mandatory gates per region vary — EU requires transparency, human-oversight, accountability, ai-governance, security.
 
-FORMAT: Give clear, structured answers. Use bullet points for lists of controls. Keep responses under 300 words unless the question requires more detail. Never apologise excessively.`;
-  }
+FORMAT: Clear, structured. Bullet points for lists. Under 280 words unless more is genuinely needed. Never start with "Great question!"`;
+  },
 
-  function isOffTopic(msg) {
-    const lower = msg.toLowerCase();
-    const aiosTopic = ['aios','audit','control','domain','score','governance','compliance','eu ai act','nist','iso 42001','certification','l1','l2','l3','l4','l5','policy','bias','fairness','oversight','observability','agent','workflow','security','gap','register','roadmap','remediation','eu','uk','singapore','canada','regional','framework','responsible ai','explainability','ethics'];
-    return !aiosTopic.some(t => lower.includes(t));
-  }
-
-  function outputGuardrail(text) {
-    // Strip any vendor recommendations that slipped through
-    const vendors = ['openai', 'anthropic', 'google', 'microsoft', 'aws', 'azure'];
+  // ── OUTPUT GUARDRAIL ────────────────────────────────────────────
+  sanitise(text) {
+    const legalTriggers = ['you must comply','you are legally required','you will be fined',
+      'legally obligated','you are required by law'];
     let safe = text;
-    // Add disclaimer if legal-adjacent language present
-    const legalTerms = ['you must', 'you are required', 'legally obligated', 'you will be fined'];
-    if (legalTerms.some(t => safe.toLowerCase().includes(t))) {
-      safe += '\n\n*Note: This is not legal advice. Consult qualified legal counsel for your specific regulatory obligations.*';
+    if (legalTriggers.some(t => safe.toLowerCase().includes(t))) {
+      safe += '\n\n⚠️ *This is not legal advice — consult qualified legal counsel for your specific regulatory obligations.*';
     }
     return safe;
-  }
+  },
 
-  function appendMessage(role, text) {
-    const container = document.getElementById('agentMessages');
+  // ── APPEND MESSAGE ──────────────────────────────────────────────
+  appendMsg(containerId, senderLabel, role, text) {
+    const c = document.getElementById(containerId);
     const div = document.createElement('div');
-    div.className = `agent-msg ${role}`;
-    div.innerHTML = `<div class="agent-msg-sender">${role === 'bot' ? 'AIOS AGENT' : 'YOU'}</div><div class="agent-msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
+    div.className = `${containerId.startsWith('liz') ? 'liz' : 'agent'}-msg ${role}`;
+    const pfx = containerId.startsWith('liz') ? 'liz' : 'agent';
+    const safeText = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+                         .replace(/\*(.*?)\*/g,'<em>$1</em>')
+                         .replace(/`(.*?)`/g,'<code>$1</code>')
+                         .replace(/\n/g,'<br>');
+    div.innerHTML = `<div class="${pfx}-msg-${pfx==='liz'?'name':'sender'}">${senderLabel}</div><div class="${pfx}-msg-bubble">${safeText}</div>`;
+    c.appendChild(div);
+    c.scrollTop = c.scrollHeight;
+  },
+
+  // ── TYPING INDICATOR ────────────────────────────────────────────
+  typing(typingId, msgId, show) {
+    document.getElementById(typingId).classList.toggle('visible', show);
+    const c = document.getElementById(msgId);
+    if (c) c.scrollTop = c.scrollHeight;
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// FLOATING LIZ WIDGET
+// ═══════════════════════════════════════════════════════════════════
+
+let lizCount = 0, lizRegion = 'EU', lizHistory = [];
+
+function toggleLiz() {
+  const panel = document.getElementById('lizPanel');
+  const isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  if (!isOpen) document.getElementById('lizInput').focus();
+}
+
+function lizSetRegion(el, region) {
+  document.querySelectorAll('.liz-rpill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  lizRegion = region;
+  LIZ.region = region;
+}
+
+function lizQuick(btn) {
+  document.getElementById('lizInput').value = btn.textContent;
+  lizSend();
+}
+
+function lizEscalate() {
+  document.getElementById('lizEscalateBar').classList.remove('visible');
+  document.getElementById('audit-form').scrollIntoView({ behavior: 'smooth' });
+  toggleLiz();
+}
+
+async function lizSend() {
+  const input = document.getElementById('lizInput');
+  const msg = input.value.trim();
+  if (!msg || lizCount >= LIZ.MAX) return;
+
+  // Off-topic guard
+  if (LIZ.isOffTopic(msg)) {
+    LIZ.appendMsg('lizMessages','LIZ · AIOS ADVISOR','bot',
+      "I'm scoped to AIOS framework questions — AI governance, scoring, controls, regional compliance, and certification. Could you rephrase within that scope?");
+    input.value = '';
+    return;
   }
 
-  function showTyping(show) {
-    const t = document.getElementById('agentTyping');
-    t.classList.toggle('visible', show);
-    const container = document.getElementById('agentMessages');
-    container.scrollTop = container.scrollHeight;
+  input.value = '';
+  lizCount++;
+  document.getElementById('lizCounter').textContent = `${lizCount} / ${LIZ.MAX} messages`;
+  document.getElementById('lizQuickReplies').style.display = 'none';
+
+  LIZ.appendMsg('lizMessages','YOU','user', msg);
+  LIZ.typing('lizTyping','lizMessages', true);
+  document.getElementById('lizSendBtn').disabled = true;
+
+  // Escalation check
+  if (LIZ.needsEscalation(msg)) {
+    document.getElementById('lizEscalateBar').classList.add('visible');
   }
 
+  lizHistory.push({ role: 'user', content: msg });
+
+  let reply;
+  try {
+    // Try KB first for instant common-question answers
+    const kbAnswer = LIZ.lookup(msg);
+    if (kbAnswer && lizHistory.length <= 2) {
+      await new Promise(r => setTimeout(r, 600 + Math.random() * 500));
+      reply = kbAnswer;
+    } else {
+      // API call with conversation history
+      const res = await fetch('/api/liz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: lizHistory.slice(-10), region: lizRegion })
+      });
+      if (!res.ok) throw new Error('api');
+      const data = await res.json();
+      reply = data.reply || 'I had trouble generating a response. Please try again.';
+    }
+  } catch {
+    // Graceful fallback to KB
+    const kbAnswer = LIZ.lookup(msg);
+    reply = kbAnswer ||
+      `I'm having trouble connecting right now. Here's what I can tell you from my knowledge base:\n\nFor "${msg}" — try asking about a specific domain (e.g. "What is Domain 13?"), a certification level (e.g. "What is AIOS-L3?"), or a regional framework (e.g. "EU AI Act basics"). Or <a href="#audit-form" style="color:var(--gold)">submit your product for a full audit</a> and our team will answer directly.`;
+  }
+
+  lizHistory.push({ role: 'assistant', content: reply });
+  LIZ.typing('lizTyping','lizMessages', false);
+  LIZ.appendMsg('lizMessages','LIZ · AIOS ADVISOR','bot', LIZ.sanitise(reply));
+  document.getElementById('lizSendBtn').disabled = false;
+
+  if (lizCount >= LIZ.MAX) {
+    document.getElementById('lizSendBtn').disabled = true;
+    LIZ.appendMsg('lizMessages','LIZ · AIOS ADVISOR','bot',
+      "We've reached the session limit of 20 messages. To continue the conversation with our specialist team, submit your product for a free audit — they'll pick up exactly where we left off.");
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('lizInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') lizSend();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// INLINE AGENT (Liz section on page)
+// ═══════════════════════════════════════════════════════════════════
+
+let agentRegion = 'EU', agentCount = 0, agentHistory = [];
+const AGENT_MAX = 20;
+
+function setAgentRegion(el, region) {
+  document.querySelectorAll('.region-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  agentRegion = region;
+  LIZ.region = region;
+}
+
+function sendSuggested(btn) {
+  document.getElementById('agentInput').value = btn.textContent.trim();
+  sendAgentMessage();
+}
+
+async function sendAgentMessage() {
+  const input = document.getElementById('agentInput');
+  const msg = input.value.trim();
+  if (!msg || agentCount >= AGENT_MAX) return;
+
+  if (LIZ.isOffTopic(msg)) {
+    appendAgentMessage('bot', "I can only answer questions about the AIOS framework, AI governance, controls, scoring, and regional compliance. Could you rephrase within that scope?");
+    input.value = '';
+    return;
+  }
+
+  input.value = '';
+  agentCount++;
+  document.getElementById('agentCounter').textContent = `${agentCount} / ${AGENT_MAX} messages`;
+
+  appendAgentMessage('user', msg);
+  showAgentTyping(true);
+  document.getElementById('agentSendBtn').disabled = true;
+
+  agentHistory.push({ role: 'user', content: msg });
+
+  let reply;
+  try {
+    const kbAnswer = LIZ.lookup(msg);
+    if (kbAnswer && agentHistory.length <= 2) {
+      await new Promise(r => setTimeout(r, 700 + Math.random() * 400));
+      reply = kbAnswer;
+    } else {
+      const res = await fetch('/api/liz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: agentHistory.slice(-10), region: agentRegion })
+      });
+      if (!res.ok) throw new Error('api');
+      const data = await res.json();
+      reply = data.reply || 'I had trouble generating a response. Please try again.';
+    }
+  } catch {
+    const kbAnswer = LIZ.lookup(msg);
+    reply = kbAnswer ||
+      "I'm having trouble connecting right now. Try asking about a specific domain, certification level, or regional framework — or submit your product for a full audit and our team will answer directly.";
+  }
+
+  agentHistory.push({ role: 'assistant', content: reply });
+  showAgentTyping(false);
+  appendAgentMessage('bot', LIZ.sanitise(reply));
+  document.getElementById('agentSendBtn').disabled = false;
+
+  if (agentCount >= AGENT_MAX) {
+    document.getElementById('agentSendBtn').disabled = true;
+    appendAgentMessage('bot', "Session limit reached (20 messages). Submit your product for a free audit and our team will continue the conversation with your specific results.");
+  }
+}
+
+function appendAgentMessage(role, text) {
+  const c = document.getElementById('agentMessages');
+  const div = document.createElement('div');
+  div.className = `agent-msg ${role}`;
+  const safeText = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+                       .replace(/\*(.*?)\*/g,'<em>$1</em>')
+                       .replace(/`(.*?)`/g,'<code>$1</code>')
+                       .replace(/\n/g,'<br>');
+  div.innerHTML = `<div class="agent-msg-sender">${role === 'bot' ? 'LIZ · AIOS ADVISOR' : 'YOU'}</div><div class="agent-msg-bubble">${safeText}</div>`;
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+}
+
+function showAgentTyping(show) {
+  document.getElementById('agentTyping').classList.toggle('visible', show);
+  const c = document.getElementById('agentMessages');
+  c.scrollTop = c.scrollHeight;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('agentInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') sendAgentMessage();
   });
+});
 
-  // ── REGION TABS ───────────────────────────────────────────────────
-  function showRegion(id, btn) {
-    document.querySelectorAll('.region-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.region-tab').forEach(el => el.classList.remove('active'));
-    document.getElementById('region-' + id).classList.add('active');
-    btn.classList.add('active');
+// ═══════════════════════════════════════════════════════════════════
+// REGION TABS
+// ═══════════════════════════════════════════════════════════════════
+
+function showRegion(id, btn) {
+  document.querySelectorAll('.region-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.region-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('region-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FAQ
+// ═══════════════════════════════════════════════════════════════════
+
+function setFaqCategory(btn, cat) {
+  document.querySelectorAll('.faq-cat-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.faq-group').forEach(g => g.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('faq-' + cat).classList.add('active');
+}
+
+function toggleFaq(questionEl) {
+  const item = questionEl.parentElement;
+  const answer = item.querySelector('.faq-answer');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => {
+    i.classList.remove('open');
+    i.querySelector('.faq-answer').style.maxHeight = null;
+  });
+  if (!isOpen) {
+    item.classList.add('open');
+    answer.style.maxHeight = answer.scrollHeight + 'px';
   }
+}
 
-  // ── FAQ ───────────────────────────────────────────────────────────
-  function setFaqCategory(btn, cat) {
-    document.querySelectorAll('.faq-cat-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.faq-group').forEach(g => g.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('faq-' + cat).classList.add('active');
-  }
+// ═══════════════════════════════════════════════════════════════════
+// FORM
+// ═══════════════════════════════════════════════════════════════════
 
-  function toggleFaq(questionEl) {
-    const item = questionEl.parentElement;
-    const answer = item.querySelector('.faq-answer');
-    const isOpen = item.classList.contains('open');
-    // close all
-    document.querySelectorAll('.faq-item.open').forEach(i => {
-      i.classList.remove('open');
-      i.querySelector('.faq-answer').style.maxHeight = null;
-    });
-    if (!isOpen) {
-      item.classList.add('open');
-      answer.style.maxHeight = answer.scrollHeight + 'px';
-    }
-  }
+function handleSubmit() {
+  document.getElementById('modal').classList.add('active');
+}
 
-  // ── FORM ──────────────────────────────────────────────────────────
-  function handleSubmit() {
-    document.getElementById('modal').classList.add('active');
-  }
+// ═══════════════════════════════════════════════════════════════════
+// SCROLL REVEAL
+// ═══════════════════════════════════════════════════════════════════
 
-  // ── SCROLL REVEAL ─────────────────────────────────────────────────
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); });
-  }, { threshold: 0.2 });
-  document.querySelectorAll('.audit-card,.step-card,.domain-row,.cert-row,.db-card,.proof-card,.gov-card,.region-control-row').forEach(el => observer.observe(el));
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.audit-card,.step-card,.domain-row,.cert-row,.db-card,.proof-card,.gov-card,.region-control-row').forEach(el => observer.observe(el));
 
-  // ── MARQUEE ───────────────────────────────────────────────────────
-  const sep = document.querySelector('.separator');
-  if (sep) {
-    sep.innerHTML += sep.innerHTML;
-    let pos = 0;
-    setInterval(() => {
-      pos -= 0.5;
-      if (Math.abs(pos) >= sep.scrollWidth / 2) pos = 0;
-      sep.style.transform = `translateX(${pos}px)`;
-    }, 16);
-  }
+// ═══════════════════════════════════════════════════════════════════
+// SEPARATOR MARQUEE
+// ═══════════════════════════════════════════════════════════════════
+
+const sep = document.querySelector('.separator');
+if (sep) {
+  sep.innerHTML += sep.innerHTML;
+  let pos = 0;
+  setInterval(() => {
+    pos -= 0.5;
+    if (Math.abs(pos) >= sep.scrollWidth / 2) pos = 0;
+    sep.style.transform = `translateX(${pos}px)`;
+  }, 16);
+}
 </script>
 </body>
 </html>
