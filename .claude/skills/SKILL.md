@@ -22,10 +22,18 @@ Master index of Claude skills available in this repository.
 {
   sessionId: string;
   region: string;
-  findings: Finding[];        // per-control pass/fail/partial scores
-  overallScore: number;       // 0-100
-  certificationEligible: string[];   // e.g. ["AIOS-L1","AIOS-L2"]
-  generatedAt: string;        // ISO timestamp
+  regionDisplayName: string;          // e.g. "EU — EU AI Act (Regulation 2024/1689)"
+  findings: Finding[];                // per-control pass/fail/partial scores
+  overallScore: number;               // raw unweighted average (0-100)
+  weightedScore: number;              // domain-weighted score before regional multiplier
+  regionalScore: number;              // after regional compliance multiplier
+  grade: string;                      // "A+" | "A" | "B+" | "B" | "C" | "D" | "F"
+  gradeLabel: string;                 // e.g. "Exceptional"
+  certificationEligible: string[];    // e.g. ["AIOS-L1","AIOS-L2"]
+  governanceDomainScore: number;      // Domain 13 (ai-governance) score
+  meetsGovernanceGate: boolean;       // true if Domain 13 >= 40
+  mandatoryGatesStatus: Record<string, boolean>;  // per-gate pass/fail for region
+  generatedAt: string;                // ISO timestamp
 }
 ```
 

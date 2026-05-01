@@ -1,410 +1,410 @@
 #!/usr/bin/env node
 /**
- * ZENITH AI OS — Audit Runner CLI
- * Usage: node scripts/audit/run-audit.js [options]
+ * ZENITH AI OS — Audit Runner CLI  (AIOS-STANDARD-v1.1)
+ *
+ * Usage:
+ *   node scripts/audit/run-audit.js [options]
  *
  * Options:
- *   --org-id <uuid>          Organization ID to audit
- *   --framework <id>         Framework ID (default: framework-aios-standard-v1)
- *   --output <path>          Output file path (default: stdout)
- *   --format <json|md|text>  Output format (default: text)
- *   --scores <csv>           Comma-separated domain:score pairs for simulation
- *   --verbose                Show detailed scoring per control
- *   --help                   Show this help
+ *   --region <EU|US|UK|SG|CA|GLOBAL>  Regional compliance overlay (default: GLOBAL)
+ *   --scores <csv>                     domain:score pairs e.g. "ai-governance:65,security:72"
+ *   --target <number>                  Target score for gap analysis (default: 70)
+ *   --format <text|md|json>            Output format (default: text)
+ *   --output <path>                    Save output to file instead of stdout
+ *   --org-id <string>                  Organisation identifier (default: demo)
+ *   --verbose                          Show per-domain contribution breakdown
+ *   --help                             Show this help
  *
  * Examples:
- *   node scripts/audit/run-audit.js --org-id abc-123 --format md
- *   node scripts/audit/run-audit.js --scores "identity_context:78,memory:65,agent_orchestration:72"
+ *   node scripts/audit/run-audit.js
+ *   node scripts/audit/run-audit.js --region EU --format md
+ *   node scripts/audit/run-audit.js --scores "ai-governance:75,security:80" --region US
+ *   node scripts/audit/run-audit.js --format json --output docs/audit/latest.json
  */
 
 'use strict';
 
-const fs = require('fs');
+const fs   = require('fs');
 const path = require('path');
 
-// ─── CLI Args ──────────────────────────────────────────────────────────────
+// ─── CLI ──────────────────────────────────────────────────────────────────────
 
 function parseArgs() {
   const args = process.argv.slice(2);
   const opts = {
-    orgId: null,
-    framework: 'framework-aios-standard-v1',
-    output: null,
-    format: 'text',
-    scores: {},
+    region:  'GLOBAL',
+    scores:  {},
+    target:  70,
+    format:  'text',
+    output:  null,
+    orgId:   'demo',
     verbose: false,
-    help: false,
+    help:    false,
   };
 
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
-      case '--org-id':   opts.orgId = args[++i]; break;
-      case '--framework': opts.framework = args[++i]; break;
-      case '--output':   opts.output = args[++i]; break;
-      case '--format':   opts.format = args[++i]; break;
-      case '--verbose':  opts.verbose = true; break;
-      case '--help':     opts.help = true; break;
-      case '--scores':
+      case '--region':  opts.region  = args[++i].toUpperCase(); break;
+      case '--format':  opts.format  = args[++i]; break;
+      case '--output':  opts.output  = args[++i]; break;
+      case '--org-id':  opts.orgId   = args[++i]; break;
+      case '--target':  opts.target  = parseFloat(args[++i]); break;
+      case '--verbose': opts.verbose = true; break;
+      case '--help':    opts.help    = true; break;
+      case '--scores': {
         const pairs = args[++i].split(',');
         for (const pair of pairs) {
           const [domain, score] = pair.split(':');
           if (domain && score) opts.scores[domain.trim()] = parseFloat(score.trim());
         }
         break;
+      }
     }
   }
   return opts;
 }
 
-// ─── Scoring Model ─────────────────────────────────────────────────────────
+// ─── Scoring Model (mirrors governanceScore.ts) ───────────────────────────────
 
-const DOMAIN_WEIGHTS = {
-  identity_context:    0.08,
-  memory:              0.08,
-  agent_orchestration: 0.10,
-  tool_execution:      0.09,
-  workflow_engine:     0.09,
-  knowledge_retrieval: 0.08,
-  policy_engine:       0.09,
-  interface:           0.07,
-  security_trust:      0.10,
-  observability:       0.08,
-  extensibility:       0.07,
-  deployment:          0.07,
+const BASE_WEIGHTS = {
+  'ai-governance':    0.12,   // Domain 13 — highest single weight
+  'transparency':     0.09,
+  'fairness':         0.09,
+  'accountability':   0.09,
+  'privacy':          0.09,
+  'security':         0.09,
+  'reliability':      0.08,
+  'human-oversight':  0.08,
+  'data-governance':  0.08,
+  'model-governance': 0.08,
+  'deployment':       0.07,
+  'incident-response':0.07,
+  'documentation':    0.07,
 };
 
-const MATURITY_BANDS = [
-  { min: 0,  max: 25,  label: 'AI-Enabled Application',   color: '\x1b[31m' },
-  { min: 25, max: 45,  label: 'Emerging AI Platform',      color: '\x1b[33m' },
-  { min: 45, max: 65,  label: 'Functional AI OS',          color: '\x1b[36m' },
-  { min: 65, max: 80,  label: 'Advanced AI OS',            color: '\x1b[32m' },
-  { min: 80, max: 90,  label: 'Standard-Ready AI OS',      color: '\x1b[92m' },
-  { min: 90, max: 101, label: 'Open Standard Candidate',   color: '\x1b[95m' },
+// Regional multipliers (mirrors regions/*.ts complianceMultiplier)
+const REGIONAL_OVERLAYS = {
+  EU:     { multiplier: 0.95, law: 'EU AI Act (Regulation 2024/1689)',         gates: ['transparency','human-oversight','accountability','ai-governance','security'] },
+  US:     { multiplier: 1.00, law: 'NIST AI RMF 1.0 + EO 14110 (2023)',        gates: ['security','accountability','transparency'] },
+  UK:     { multiplier: 0.97, law: 'UK AI Framework + Data Protection Act 2018',gates: ['safety','transparency','fairness','accountability','human-oversight'] },
+  SG:     { multiplier: 0.98, law: 'MAS FEAT + Model AI Governance Framework', gates: ['fairness','ethics','accountability','transparency'] },
+  CA:     { multiplier: 0.97, law: 'AIDA (Bill C-27) + Directive on Automated Decision-Making', gates: ['transparency','accountability','human-oversight','privacy'] },
+  GLOBAL: { multiplier: 0.90, law: 'ISO/IEC 42001:2023 (AI Management System)', gates: ['ai-governance','accountability','transparency','risk-management'] },
+};
+
+const GRADE_THRESHOLDS = [
+  { min: 90, grade: 'A+', label: 'Exceptional' },
+  { min: 80, grade: 'A',  label: 'Strong' },
+  { min: 70, grade: 'B+', label: 'Proficient' },
+  { min: 55, grade: 'B',  label: 'Developing' },
+  { min: 38, grade: 'C',  label: 'Basic' },
+  { min: 25, grade: 'D',  label: 'Minimal' },
+  { min: 0,  grade: 'F',  label: 'Non-compliant' },
 ];
 
 const CERT_LEVELS = [
-  { level: 'AIOS-L1', threshold: 25,  label: 'AI Enabled App' },
-  { level: 'AIOS-L2', threshold: 38,  label: 'Workflow AI Platform' },
-  { level: 'AIOS-L3', threshold: 55,  label: 'Operational AI OS' },
-  { level: 'AIOS-L4', threshold: 70,  label: 'Enterprise AI OS' },
-  { level: 'AIOS-L5', threshold: 90,  label: 'Open Standard Reference' },
+  { level: 'AIOS-L5', min: 90, govGate: 80, label: 'Open Standard Reference' },
+  { level: 'AIOS-L4', min: 70, govGate: 60, label: 'Enterprise AI OS' },
+  { level: 'AIOS-L3', min: 55, govGate: 40, label: 'Operational AI OS' },
+  { level: 'AIOS-L2', min: 38, govGate: 0,  label: 'Workflow AI Platform' },
+  { level: 'AIOS-L1', min: 25, govGate: 0,  label: 'AI-Enabled Application' },
 ];
 
-function computeOverallScore(domainScores) {
-  let total = 0;
-  for (const [domain, weight] of Object.entries(DOMAIN_WEIGHTS)) {
-    const score = domainScores[domain] ?? 50;
-    total += score * weight;
+const MATURITY_BANDS = [
+  { min: 90, label: 'Open Standard Candidate',  color: '\x1b[95m' },
+  { min: 80, label: 'Standard-Ready AI OS',      color: '\x1b[92m' },
+  { min: 65, label: 'Advanced AI OS',            color: '\x1b[32m' },
+  { min: 45, label: 'Functional AI OS',          color: '\x1b[36m' },
+  { min: 25, label: 'Emerging AI Platform',      color: '\x1b[33m' },
+  { min: 0,  label: 'AI-Enabled Application',    color: '\x1b[31m' },
+];
+
+function score(domainScores, region) {
+  const overlay = REGIONAL_OVERLAYS[region] || REGIONAL_OVERLAYS.GLOBAL;
+  let weightedSum = 0;
+  let totalWeight = 0;
+  const breakdown = {};
+
+  for (const [domain, weight] of Object.entries(BASE_WEIGHTS)) {
+    const s = domainScores[domain] ?? 50;
+    const contribution = s * weight;
+    weightedSum += contribution;
+    totalWeight += weight;
+    breakdown[domain] = { score: s, weight, contribution: Math.round(contribution * 100) / 100 };
   }
-  return Math.round(total * 10) / 10;
-}
 
-function getMaturityBand(score) {
-  return MATURITY_BANDS.find(b => score >= b.min && score < b.max) || MATURITY_BANDS[0];
-}
+  const weighted  = Math.round((weightedSum / totalWeight) * 10) / 10;
+  const regional  = Math.round(weighted * overlay.multiplier * 10) / 10;
+  const raw       = Math.round(Object.values(domainScores).reduce((a, b) => a + b, 0) / Math.max(Object.values(domainScores).length, 1) * 10) / 10;
+  const grade     = GRADE_THRESHOLDS.find(t => regional >= t.min) || GRADE_THRESHOLDS[GRADE_THRESHOLDS.length - 1];
+  const band      = MATURITY_BANDS.find(b => regional >= b.min) || MATURITY_BANDS[MATURITY_BANDS.length - 1];
+  const govScore  = domainScores['ai-governance'] ?? 50;
 
-function getCertLevel(score) {
-  let level = null;
-  for (const cert of CERT_LEVELS) {
-    if (score >= cert.threshold) level = cert;
+  const certEligible = CERT_LEVELS.filter(c => regional >= c.min && govScore >= c.govGate).map(c => c.level);
+  const topCert = certEligible[0] || 'UNCERTIFIED';
+
+  const gateStatus = {};
+  for (const gate of overlay.gates) {
+    gateStatus[gate] = (domainScores[gate] ?? 50) >= 40;
   }
-  return level || { level: 'UNCERTIFIED', threshold: 0, label: 'Below minimum threshold' };
+
+  return { raw, weighted, regional, grade, band, govScore, certEligible, topCert, breakdown, overlay, gateStatus };
 }
 
-function detectGaps(domainScores) {
-  const gaps = [];
-  for (const [domain, score] of Object.entries(domainScores)) {
-    if (score < 40) {
-      gaps.push({ domain, score, severity: score < 20 ? 'critical' : score < 30 ? 'major' : 'moderate' });
-    }
-  }
-  return gaps.sort((a, b) => a.score - b.score);
+function gaps(domainScores, targetScore) {
+  const BOOSTS = { 'ai-governance': 20, 'security': 10, 'human-oversight': 10 };
+  return Object.entries(domainScores)
+    .filter(([, s]) => s < targetScore)
+    .map(([domain, s]) => {
+      const gapSize = targetScore - s;
+      const boosted = gapSize + (BOOSTS[domain] || 0);
+      const priority = boosted >= 70 ? 'critical' : boosted >= 50 ? 'high' : boosted >= 30 ? 'medium' : 'low';
+      return { domain, score: s, gap: gapSize, priority };
+    })
+    .sort((a, b) => {
+      const order = { critical: 0, high: 1, medium: 2, low: 3 };
+      return order[a.priority] - order[b.priority] || b.gap - a.gap;
+    });
 }
 
-// ─── Default Scores (demo) ─────────────────────────────────────────────────
+// ─── Default Scores (demo — representative "mid-tier" AI product) ──────────
 
 const DEFAULT_SCORES = {
-  identity_context:    62,
-  memory:              50,
-  agent_orchestration: 58,
-  tool_execution:      55,
-  workflow_engine:     60,
-  knowledge_retrieval: 52,
-  policy_engine:       45,
-  interface:           48,
-  security_trust:      68,
-  observability:       35,
-  extensibility:       28,
-  deployment:          50,
+  'ai-governance':    22,   // typical: no governance policy, no ethics board
+  'transparency':     58,
+  'fairness':         48,
+  'accountability':   55,
+  'privacy':          62,
+  'security':         68,
+  'reliability':      60,
+  'human-oversight':  45,
+  'data-governance':  52,
+  'model-governance': 38,
+  'deployment':       50,
+  'incident-response':35,
+  'documentation':    44,
 };
 
-// ─── Formatters ────────────────────────────────────────────────────────────
+// ─── Formatters ───────────────────────────────────────────────────────────────
 
 const RESET = '\x1b[0m';
-const DIM = '\x1b[2m';
-const BOLD = '\x1b[1m';
+const DIM   = '\x1b[2m';
+const BOLD  = '\x1b[1m';
+const GREEN = '\x1b[32m';
+const AMBER = '\x1b[33m';
+const RED   = '\x1b[31m';
 
-function formatText(result, verbose) {
-  const { score, band, cert, domainScores, gaps } = result;
+function domainColor(s) { return s >= 70 ? GREEN : s >= 50 ? AMBER : RED; }
+function priorityColor(p) { return p === 'critical' ? RED : p === 'high' ? AMBER : p === 'medium' ? '\x1b[36m' : DIM; }
+
+function formatText(result, gapList, opts) {
+  const { regional, weighted, grade, band, govScore, certEligible, topCert, breakdown, overlay, gateStatus } = result;
   const lines = [];
 
   lines.push('');
-  lines.push(`${BOLD}╔══════════════════════════════════════════════════════════════╗${RESET}`);
-  lines.push(`${BOLD}║         ZENITH AI OS — AUDIT REPORT                         ║${RESET}`);
-  lines.push(`${BOLD}╚══════════════════════════════════════════════════════════════╝${RESET}`);
+  lines.push(`${BOLD}╔════════════════════════════════════════════════════════════════╗${RESET}`);
+  lines.push(`${BOLD}║       ZENITH AI OS — AUDIT REPORT  (AIOS-STANDARD v1.1)       ║${RESET}`);
+  lines.push(`${BOLD}╚════════════════════════════════════════════════════════════════╝${RESET}`);
   lines.push('');
-  const col = band.color || '\x1b[36m';
-  lines.push(`  ${BOLD}Overall Score:${RESET}    ${col}${BOLD}${score} / 100${RESET}`);
+  const col = band.color;
+  lines.push(`  ${BOLD}Regional Score:${RESET}   ${col}${BOLD}${regional} / 100${RESET}   ${DIM}(weighted ${weighted}, ×${overlay.multiplier} ${opts.region})${RESET}`);
+  lines.push(`  ${BOLD}Grade:${RESET}            ${col}${grade.grade} — ${grade.label}${RESET}`);
   lines.push(`  ${BOLD}Maturity Band:${RESET}    ${col}${band.label}${RESET}`);
-  lines.push(`  ${BOLD}Certification:${RESET}    ${BOLD}${cert.level}${RESET} — ${cert.label}`);
+  lines.push(`  ${BOLD}Certification:${RESET}    ${BOLD}${topCert}${RESET}  ${DIM}eligible: [${certEligible.join(', ') || 'none'}]${RESET}`);
+  lines.push(`  ${BOLD}AI Governance:${RESET}    ${domainColor(govScore)}${govScore}/100${RESET}  ${govScore >= 40 ? `${GREEN}✓ gate met${RESET}` : `${RED}✗ gate not met (need 40+)${RESET}`}`);
+  lines.push(`  ${BOLD}Region Law:${RESET}       ${DIM}${overlay.law}${RESET}`);
   lines.push(`  ${BOLD}Generated:${RESET}        ${new Date().toISOString()}`);
   lines.push('');
-  lines.push(`${DIM}──────────────────────────────────────────────────────────────${RESET}`);
-  lines.push(`  ${BOLD}DOMAIN SCORES${RESET}`);
+  lines.push(`${DIM}────────────────────────────────────────────────────────────────${RESET}`);
+  lines.push(`  ${BOLD}DOMAIN SCORES${RESET}${opts.verbose ? '  (score / weight / contribution)' : ''}`);
   lines.push('');
 
-  for (const [domain, score] of Object.entries(domainScores)) {
-    const weight = DOMAIN_WEIGHTS[domain] * 100;
-    const bar = '█'.repeat(Math.round(score / 5)) + '░'.repeat(20 - Math.round(score / 5));
-    const color = score >= 70 ? '\x1b[32m' : score >= 50 ? '\x1b[33m' : '\x1b[31m';
-    const label = domain.replace(/_/g, ' ').padEnd(22);
-    lines.push(`  ${label} ${color}${bar}${RESET} ${color}${String(score).padStart(3)}${RESET} ${DIM}(${weight.toFixed(0)}%)${RESET}`);
+  for (const [domain, data] of Object.entries(breakdown)) {
+    const { score: s, weight, contribution } = data;
+    const bar   = '█'.repeat(Math.round(s / 5)) + '░'.repeat(20 - Math.round(s / 5));
+    const label = domain.padEnd(20);
+    const wPct  = `${(weight * 100).toFixed(0)}%`.padStart(4);
+    const extra = opts.verbose ? `  ${DIM}contrib: ${contribution.toFixed(1)}${RESET}` : '';
+    lines.push(`  ${label} ${domainColor(s)}${bar}${RESET} ${domainColor(s)}${String(s).padStart(3)}${RESET} ${DIM}${wPct}${RESET}${extra}`);
   }
 
   lines.push('');
-  lines.push(`${DIM}──────────────────────────────────────────────────────────────${RESET}`);
-  lines.push(`  ${BOLD}GAPS IDENTIFIED${RESET} (domains scoring < 40)`);
+  lines.push(`${DIM}────────────────────────────────────────────────────────────────${RESET}`);
+  lines.push(`  ${BOLD}MANDATORY GATES (${opts.region})${RESET}`);
+  lines.push('');
+  for (const [gate, met] of Object.entries(gateStatus)) {
+    lines.push(`  ${met ? `${GREEN}✓` : `${RED}✗`}${RESET} ${gate}`);
+  }
+
+  lines.push('');
+  lines.push(`${DIM}────────────────────────────────────────────────────────────────${RESET}`);
+  lines.push(`  ${BOLD}GAPS  (target: ${opts.target}+)${RESET}`);
   lines.push('');
 
-  if (gaps.length === 0) {
-    lines.push('  ✅ No critical gaps detected');
+  if (gapList.length === 0) {
+    lines.push(`  ${GREEN}✓ All domains meet target score${RESET}`);
   } else {
-    for (const gap of gaps) {
-      const sev = gap.severity === 'critical' ? '\x1b[31m🚨' : gap.severity === 'major' ? '\x1b[33m⚠️ ' : '\x1b[36mℹ️ ';
-      lines.push(`  ${sev} ${RESET}${gap.domain.replace(/_/g, ' ')} — Score: ${gap.score}/100 [${gap.severity.toUpperCase()}]`);
+    for (const g of gapList) {
+      const pc = priorityColor(g.priority);
+      lines.push(`  ${pc}[${g.priority.toUpperCase().padEnd(8)}]${RESET} ${g.domain.padEnd(20)} ${domainColor(g.score)}${g.score}/100${RESET}  ${DIM}gap: ${g.gap}${RESET}`);
     }
   }
 
   lines.push('');
-  lines.push(`${DIM}──────────────────────────────────────────────────────────────${RESET}`);
+  lines.push(`${DIM}────────────────────────────────────────────────────────────────${RESET}`);
   lines.push(`  ${BOLD}CERTIFICATION LADDER${RESET}`);
   lines.push('');
-
   for (const c of CERT_LEVELS) {
-    const achieved = score >= c.threshold;
-    const current = cert.level === c.level;
-    const icon = current ? '→' : achieved ? '✓' : '○';
-    const col = achieved ? '\x1b[32m' : '\x1b[2m';
-    lines.push(`  ${col}${icon} ${c.level} (≥${c.threshold}) — ${c.label}${RESET}`);
+    const achieved = regional >= c.min && govScore >= c.govGate;
+    const current  = topCert === c.level;
+    const icon     = current ? '→' : achieved ? '✓' : '○';
+    const col2     = achieved ? GREEN : DIM;
+    const gate     = c.govGate > 0 ? `  ${DIM}[Domain 13 ≥ ${c.govGate}]${RESET}` : '';
+    lines.push(`  ${col2}${icon} ${c.level} (≥${c.min}) — ${c.label}${gate}${RESET}`);
   }
 
   lines.push('');
-  lines.push(`${DIM}Run with --format md for Markdown output, --format json for structured data${RESET}`);
+  lines.push(`${DIM}Run with --format md or --format json for other output formats${RESET}`);
   lines.push('');
-
   return lines.join('\n');
 }
 
-function formatMarkdown(result) {
-  const { score, band, cert, domainScores, gaps } = result;
+function formatMarkdown(result, gapList, opts) {
+  const { regional, weighted, grade, band, govScore, certEligible, topCert, breakdown, overlay, gateStatus } = result;
   const lines = [];
 
-  lines.push('# ZENITH AI OS — AUDIT REPORT');
+  lines.push('# ZENITH AI OS — Audit Report');
   lines.push('');
-  lines.push(`| Field | Value |`);
-  lines.push(`|-------|-------|`);
-  lines.push(`| **Overall Score** | **${score} / 100** |`);
-  lines.push(`| **Maturity Band** | ${band.label} |`);
-  lines.push(`| **Certification** | ${cert.level} — ${cert.label} |`);
-  lines.push(`| **Generated** | ${new Date().toISOString()} |`);
+  lines.push(`> **AIOS-STANDARD v1.1** · Region: **${opts.region}** · ${new Date().toISOString()}`);
+  lines.push('');
+  lines.push('## Summary');
+  lines.push('');
+  lines.push('| Metric | Value |');
+  lines.push('|--------|-------|');
+  lines.push(`| Regional Score | **${regional} / 100** |`);
+  lines.push(`| Weighted Score | ${weighted} / 100 |`);
+  lines.push(`| Grade | **${grade.grade}** — ${grade.label} |`);
+  lines.push(`| Maturity Band | ${band.label} |`);
+  lines.push(`| Certification | **${topCert}** (eligible: ${certEligible.join(', ') || 'none'}) |`);
+  lines.push(`| AI Governance (Domain 13) | ${govScore}/100 ${govScore >= 40 ? '✓' : '✗ (need 40+)'} |`);
+  lines.push(`| Compliance Multiplier | ×${overlay.multiplier} |`);
+  lines.push(`| Primary Law | ${overlay.law} |`);
+  lines.push(`| Org | ${opts.orgId} |`);
   lines.push('');
   lines.push('## Domain Scores');
   lines.push('');
   lines.push('| Domain | Score | Weight | Status |');
   lines.push('|--------|-------|--------|--------|');
-
-  for (const [domain, s] of Object.entries(domainScores)) {
-    const w = (DOMAIN_WEIGHTS[domain] * 100).toFixed(0) + '%';
+  for (const [domain, data] of Object.entries(breakdown)) {
+    const { score: s, weight } = data;
     const status = s >= 70 ? '✅ Good' : s >= 50 ? '⚠️ Needs Work' : '❌ Gap';
-    lines.push(`| ${domain.replace(/_/g, ' ')} | ${s}/100 | ${w} | ${status} |`);
+    lines.push(`| ${domain} | ${s}/100 | ${(weight * 100).toFixed(0)}% | ${status} |`);
   }
 
   lines.push('');
-  lines.push('## Gaps Identified');
+  lines.push(`## Mandatory Gates (${opts.region})`);
   lines.push('');
+  lines.push('| Gate | Status |');
+  lines.push('|------|--------|');
+  for (const [gate, met] of Object.entries(gateStatus)) {
+    lines.push(`| ${gate} | ${met ? '✅ Met' : '❌ Not Met'} |`);
+  }
 
-  if (gaps.length === 0) {
-    lines.push('No critical gaps detected.');
+  lines.push('');
+  lines.push(`## Gaps  (target: ${opts.target}+)`);
+  lines.push('');
+  if (gapList.length === 0) {
+    lines.push('All domains meet the target score.');
   } else {
-    for (const gap of gaps) {
-      lines.push(`- **${gap.domain.replace(/_/g, ' ')}** — ${gap.score}/100 [${gap.severity.toUpperCase()}]`);
+    lines.push('| Domain | Score | Gap | Priority |');
+    lines.push('|--------|-------|-----|----------|');
+    for (const g of gapList) {
+      lines.push(`| ${g.domain} | ${g.score}/100 | ${g.gap} | ${g.priority.toUpperCase()} |`);
     }
   }
 
   lines.push('');
+  lines.push('## Certification Ladder');
+  lines.push('');
+  lines.push('| Level | Min Score | Gov Gate | Label | Status |');
+  lines.push('|-------|-----------|----------|-------|--------|');
+  for (const c of CERT_LEVELS) {
+    const achieved = regional >= c.min && govScore >= c.govGate;
+    const current  = topCert === c.level;
+    const flag     = current ? '**→ Current**' : achieved ? '✓' : '—';
+    const gateStr  = c.govGate > 0 ? `Domain 13 ≥ ${c.govGate}` : '—';
+    lines.push(`| ${c.level} | ${c.min} | ${gateStr} | ${c.label} | ${flag} |`);
+  }
+
+  lines.push('');
   lines.push('---');
-  lines.push('*Generated by Zenith AI OS Audit Runner*');
+  lines.push('*Generated by Zenith AI OS Audit Runner · AIOS-STANDARD-v1.1*');
   return lines.join('\n');
 }
 
-// ─── Main ──────────────────────────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────────────────────────
 
 function main() {
   const opts = parseArgs();
 
   if (opts.help) {
     console.log(`
-ZENITH AI OS — Audit Runner
+ZENITH AI OS — Audit Runner  (AIOS-STANDARD v1.1)
 
 Usage:
   node scripts/audit/run-audit.js [options]
 
 Options:
-  --org-id <uuid>          Organization ID to audit
-  --framework <id>         Framework ID (default: framework-aios-standard-v1)
-  --output <path>          Save output to file
-  --format <json|md|text>  Output format (default: text)
-  --scores <csv>           domain:score pairs e.g. "memory:80,policy_engine:45"
-  --verbose                Show detailed per-control breakdown
-  --help                   Show this help
+  --region <EU|US|UK|SG|CA|GLOBAL>  Regional compliance overlay (default: GLOBAL)
+  --scores <csv>                     domain:score pairs
+  --target <number>                  Gap threshold (default: 70)
+  --format <text|md|json>            Output format (default: text)
+  --output <path>                    Save to file
+  --org-id <string>                  Organisation ID
+  --verbose                          Show per-domain contributions
+  --help                             Show this help
+
+Domains: ai-governance (12%), transparency, fairness, accountability, privacy,
+         security (9% each), reliability, human-oversight, data-governance,
+         model-governance (8% each), deployment, incident-response, documentation (7% each)
+
+Regional multipliers: US=1.0  SG=0.98  UK=0.97  CA=0.97  EU=0.95  GLOBAL=0.90
 
 Examples:
-  # Run with default demo scores
   node scripts/audit/run-audit.js
-
-  # Simulate a low-policy scenario
-  node scripts/audit/run-audit.js --scores "policy_engine:10,observability:20" --format md
-
-  # Output JSON to file
-  node scripts/audit/run-audit.js --format json --output ./audit-results.json
+  node scripts/audit/run-audit.js --region EU --format md
+  node scripts/audit/run-audit.js --scores "ai-governance:75,security:80" --region US --format json
 `);
     process.exit(0);
   }
 
-  // Merge provided scores over defaults
-  const domainScores = { ...DEFAULT_SCORES, ...opts.scores };
-  const score = computeOverallScore(domainScores);
-  const band = getMaturityBand(score);
-  const cert = getCertLevel(score);
-  const gaps = detectGaps(domainScores);
+  if (!REGIONAL_OVERLAYS[opts.region]) {
+    console.error(`Unknown region: ${opts.region}. Use EU, US, UK, SG, CA, or GLOBAL.`);
+    process.exit(1);
+  }
 
-  const result = {
-    runId: `audit-cli-${Date.now()}`,
-    orgId: opts.orgId ?? 'demo',
-    frameworkId: opts.framework,
-    score,
-    band: { label: band.label },
-    cert,
-    domainScores,
-    gaps,
-    generatedAt: new Date().toISOString(),
-  };
+  const domainScores = { ...DEFAULT_SCORES, ...opts.scores };
+  const result  = score(domainScores, opts.region);
+  const gapList = gaps(domainScores, opts.target);
 
   let output;
   switch (opts.format) {
-    case 'json': output = JSON.stringify(result, null, 2); break;
-    case 'md':   output = formatMarkdown(result); break;
-    default:     output = formatText(result, opts.verbose); break;
+    case 'json': output = JSON.stringify({ ...result, gaps: gapList, orgId: opts.orgId, generatedAt: new Date().toISOString() }, null, 2); break;
+    case 'md':   output = formatMarkdown(result, gapList, opts); break;
+    default:     output = formatText(result, gapList, opts); break;
   }
 
   if (opts.output) {
-    const dir = path.dirname(opts.output);
+    const dir = path.dirname(path.resolve(opts.output));
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(opts.output, output, 'utf-8');
-    console.log(`✅ Audit report saved to ${opts.output}`);
+    console.log(`✅  Audit report saved to ${opts.output}`);
   } else {
-    console.log(output);
+    process.stdout.write(output + '\n');
   }
 
-  // Exit with non-zero if critical gaps
-  const criticalCount = gaps.filter(g => g.severity === 'critical').length;
-  process.exit(criticalCount > 0 ? 1 : 0);
+  const criticalGaps = gapList.filter(g => g.priority === 'critical').length;
+  process.exit(criticalGaps > 0 ? 1 : 0);
 }
 
 main();
-// Run: node scripts/audit/run-audit.js [--format md] [--output path]
-
-import { AuditEngine, AUDIT_CONTROLS } from '../../packages/aios-audit/dist/index.js';
-
-const args = process.argv.slice(2);
-const formatIdx = args.indexOf('--format');
-const outputIdx = args.indexOf('--output');
-const format = formatIdx !== -1 ? args[formatIdx + 1] : 'text';
-const outputPath = outputIdx !== -1 ? args[outputIdx + 1] : null;
-
-// Self-assessment: evaluate which controls this codebase passes
-const evaluations = new Map();
-
-const passedControls = new Set([
-  // Context
-  'CTX-01', 'CTX-02', 'CTX-03', 'CTX-04', 'CTX-05',
-  // Memory
-  'MEM-01', 'MEM-02', 'MEM-05',
-  // Agents
-  'AGT-01', 'AGT-02', 'AGT-04',
-  // Tools
-  'TLS-01', 'TLS-02', 'TLS-03',
-  // Workflows
-  'WFL-01', 'WFL-02', 'WFL-03', 'WFL-04',
-  // Knowledge
-  'KNW-01', 'KNW-02', 'KNW-03',
-  // Policy
-  'POL-01', 'POL-02', 'POL-03', 'POL-04',
-  // Security
-  'SEC-01', 'SEC-02', 'SEC-04',
-  // Observability
-  'OBS-01', 'OBS-02', 'OBS-03',
-  // Plugins
-  'PLG-01', 'PLG-02', 'PLG-03', 'PLG-04',
-  // Multi-tenancy
-  'TNT-01', 'TNT-02', 'TNT-03',
-  // SDK
-  'SDK-01', 'SDK-02', 'SDK-03', 'SDK-04',
-]);
-
-for (const control of AUDIT_CONTROLS) {
-  evaluations.set(control.id, {
-    passed: passedControls.has(control.id),
-    notes: passedControls.has(control.id) ? 'Implemented in codebase' : 'Not yet implemented',
-  });
-}
-
-const engine = new AuditEngine();
-const report = engine.evaluate(evaluations);
-
-if (format === 'md') {
-  const lines = [
-    '# Zenith AI OS — Audit Report',
-    '',
-    `**Date:** ${report.timestamp.toISOString()}`,
-    `**Overall Score:** ${report.overallScore} / 100`,
-    `**Maturity Band:** ${report.maturityBand}`,
-    `**Certification:** ${report.certification}`,
-    '',
-    '## Domain Scores',
-    '',
-    '| Domain | Score | Max | % |',
-    '|--------|-------|-----|---|',
-    ...report.domains.map(d => `| ${d.domain} | ${d.score.toFixed(1)} | ${d.maxScore.toFixed(1)} | ${d.percentage.toFixed(1)}% |`),
-    '',
-    '## Gaps',
-    '',
-    ...report.gaps.map(g => `- ${g}`),
-    '',
-    '## Next Steps',
-    '',
-    ...report.nextSteps.map(s => `- ${s}`),
-  ];
-  const output = lines.join('\n');
-  if (outputPath) {
-    const { writeFileSync, mkdirSync } = await import('fs');
-    const { dirname } = await import('path');
-    mkdirSync(dirname(outputPath), { recursive: true });
-    writeFileSync(outputPath, output, 'utf8');
-    console.log(`Audit report written to ${outputPath}`);
-  } else {
-    console.log(output);
-  }
-} else {
-  console.log(engine.formatReport(report));
-}
