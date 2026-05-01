@@ -1,0 +1,40 @@
+import type { RegionOverlay } from './types.js';
+
+export const CA: RegionOverlay = {
+  region: 'CA',
+  displayName: 'Canada — AIDA / Directive on Automated Decision-Making',
+  primaryLaw: 'Artificial Intelligence and Data Act (AIDA, Bill C-27) + Directive on Automated Decision-Making',
+  effectiveDate: '2023-06-16',
+  complianceMultiplier: 0.97,
+  mandatoryGates: [
+    'transparency',
+    'accountability',
+    'human-oversight',
+    'privacy',
+  ],
+  weights: {
+    'transparency': 0.12,
+    'accountability': 0.12,
+    'human-oversight': 0.11,
+    'privacy': 0.11,
+    'ai-governance': 0.10,
+    'fairness': 0.10,
+    'security': 0.09,
+    'reliability': 0.08,
+    'data-governance': 0.08,
+    'model-governance': 0.07,
+    'incident-response': 0.06,
+  },
+  controls: [
+    { id: 'ca-001', name: 'High-Impact System Designation', domain: 'ai-governance', mandatory: true, reference: 'AIDA §5' },
+    { id: 'ca-002', name: 'Algorithmic Impact Assessment', domain: 'accountability', mandatory: true, reference: 'Directive on Automated Decision-Making §6.3' },
+    { id: 'ca-003', name: 'Plain-Language Transparency Notice', domain: 'transparency', mandatory: true, reference: 'AIDA §11' },
+    { id: 'ca-004', name: 'Human Review of High-Impact Decisions', domain: 'human-oversight', mandatory: true, reference: 'Directive on Automated Decision-Making §6.2' },
+    { id: 'ca-005', name: 'PIPEDA / Bill C-27 Privacy Compliance', domain: 'privacy', mandatory: true, reference: 'PIPEDA + Bill C-27 Consumer Privacy Protection Act' },
+    { id: 'ca-006', name: 'Bias & Fairness Testing', domain: 'fairness', mandatory: true, reference: 'Canadian Human Rights Act' },
+    { id: 'ca-007', name: 'Audit Trail Logging', domain: 'accountability', mandatory: true, reference: 'Directive on Automated Decision-Making §6.3.4' },
+    { id: 'ca-008', name: 'Risk Mitigation Measures', domain: 'security', mandatory: true, reference: 'AIDA §8' },
+    { id: 'ca-009', name: 'Incident Reporting to ISED', domain: 'incident-response', mandatory: true, reference: 'AIDA §13' },
+    { id: 'ca-010', name: 'Annual Compliance Review', domain: 'ai-governance', mandatory: false, reference: 'AIDA §10' },
+  ],
+};

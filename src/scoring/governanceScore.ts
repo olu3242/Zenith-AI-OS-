@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { REGION_OVERLAYS } from "./regions/index.js";
 
-const DOMAIN_WEIGHTS: Record<string, number> = {
+const BASE_DOMAIN_WEIGHTS: Record<string, number> = {
   "transparency": 0.09,
   "fairness": 0.09,
   "accountability": 0.09,
@@ -14,15 +15,6 @@ const DOMAIN_WEIGHTS: Record<string, number> = {
   "incident-response": 0.07,
   "documentation": 0.07,
   "ai-governance": 0.12,
-};
-
-const REGIONAL_MULTIPLIERS: Record<string, number> = {
-  EU: 0.95,
-  US: 1.0,
-  UK: 0.97,
-  SG: 0.98,
-  CA: 0.97,
-  GLOBAL: 0.90,
 };
 
 const GRADE_THRESHOLDS: Array<{ min: number; grade: string; label: string }> = [
@@ -49,6 +41,8 @@ export interface GovernanceScoreResult {
   domainBreakdown: Record<string, { score: number; weight: number; contribution: number }>;
   governanceDomainScore: number;
   meetsGovernanceGate: boolean;
+  regionDisplayName: string;
+  mandatoryGatesStatus: Record<string, boolean>;
 }
 
 export function computeGovernanceScore(
@@ -57,14 +51,17 @@ export function computeGovernanceScore(
 ): GovernanceScoreResult {
   DomainScoreInputSchema.parse(domainScores);
 
-  const multiplier = REGIONAL_MULTIPLIERS[region] ?? REGIONAL_MULTIPLIERS.GLOBAL;
+  const overlay = REGION_OVERLAYS[region] ?? REGION_OVERLAYS["GLOBAL"];
+  const multiplier = overlay.complianceMultiplier;
+  const overlayWeights = overlay.weights;
 
   let weightedSum = 0;
   let totalWeight = 0;
   const breakdown: GovernanceScoreResult["domainBreakdown"] = {};
 
   for (const [domain, score] of Object.entries(domainScores)) {
-    const weight = DOMAIN_WEIGHTS[domain.toLowerCase()] ?? 0.07;
+    const key = domain.toLowerCase();
+    const weight = overlayWeights[key] ?? BASE_DOMAIN_WEIGHTS[key] ?? 0.07;
     const contribution = score * weight;
     weightedSum += contribution;
     totalWeight += weight;
@@ -78,8 +75,14 @@ export function computeGovernanceScore(
   const gradeEntry = GRADE_THRESHOLDS.find((t) => regional >= t.min) ?? GRADE_THRESHOLDS[GRADE_THRESHOLDS.length - 1];
 
   const governanceDomainScore = domainScores["ai-governance"] ?? domainScores["AI Governance"] ?? 0;
-  // Governance gates: L3 requires ≥40, L4 requires ≥60, L5 requires ≥80
+  // L3 requires ≥40, L4 requires ≥60, L5 requires ≥80
   const meetsGovernanceGate = governanceDomainScore >= 40;
+
+  const mandatoryGatesStatus: Record<string, boolean> = {};
+  for (const gate of overlay.mandatoryGates) {
+    const gateScore = domainScores[gate] ?? domainScores[gate.toLowerCase()] ?? 0;
+    mandatoryGatesStatus[gate] = gateScore >= 40;
+  }
 
   return {
     raw: Math.round(
@@ -93,5 +96,7 @@ export function computeGovernanceScore(
     domainBreakdown: breakdown,
     governanceDomainScore,
     meetsGovernanceGate,
+    regionDisplayName: overlay.displayName,
+    mandatoryGatesStatus,
   };
 }

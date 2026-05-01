@@ -1,0 +1,42 @@
+import type { RegionOverlay } from './types.js';
+
+export const UK: RegionOverlay = {
+  region: 'UK',
+  displayName: 'United Kingdom — UK AI Framework',
+  primaryLaw: 'UK AI Regulation Policy Paper (2023) + Data Protection Act 2018',
+  effectiveDate: '2023-03-29',
+  complianceMultiplier: 0.97,
+  mandatoryGates: [
+    'safety',
+    'transparency',
+    'fairness',
+    'accountability',
+    'human-oversight',
+  ],
+  weights: {
+    'safety': 0.13,
+    'transparency': 0.11,
+    'fairness': 0.11,
+    'accountability': 0.10,
+    'human-oversight': 0.10,
+    'ai-governance': 0.10,
+    'privacy': 0.09,
+    'security': 0.09,
+    'reliability': 0.08,
+    'data-governance': 0.07,
+    'model-governance': 0.06,
+    'incident-response': 0.06,
+  },
+  controls: [
+    { id: 'uk-001', name: 'Safety by Design', domain: 'security', mandatory: true, reference: 'UK AI Framework — Safety Principle' },
+    { id: 'uk-002', name: 'Transparency & Explainability', domain: 'transparency', mandatory: true, reference: 'UK AI Framework — Transparency Principle' },
+    { id: 'uk-003', name: 'Fairness Assessment', domain: 'fairness', mandatory: true, reference: 'UK AI Framework — Fairness Principle' },
+    { id: 'uk-004', name: 'Accountability & Governance', domain: 'accountability', mandatory: true, reference: 'UK AI Framework — Accountability Principle' },
+    { id: 'uk-005', name: 'Contestability & Redress', domain: 'human-oversight', mandatory: true, reference: 'UK AI Framework — Contestability Principle' },
+    { id: 'uk-006', name: 'UK GDPR Data Protection Impact Assessment', domain: 'privacy', mandatory: true, reference: 'UK GDPR Art. 35' },
+    { id: 'uk-007', name: 'Sector Regulator Alignment (FCA/CQC/Ofcom)', domain: 'ai-governance', mandatory: false, reference: 'UK AI Framework — Contextual Guidance' },
+    { id: 'uk-008', name: 'Bias Monitoring & Audit', domain: 'fairness', mandatory: true, reference: 'UK Equality Act 2010' },
+    { id: 'uk-009', name: 'Incident Response & Reporting', domain: 'incident-response', mandatory: true, reference: 'UK AI Framework — Safety Principle' },
+    { id: 'uk-010', name: 'Human Oversight Protocol', domain: 'human-oversight', mandatory: true, reference: 'UK AI Framework — Human Oversight Principle' },
+  ],
+};

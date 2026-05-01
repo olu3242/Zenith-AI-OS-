@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free AI OS Audit — Zenith AI OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black:   #080A0C;
+    --surface: #0E1115;
+    --card:    #131720;
+    --border:  #1E2530;
+    --border2: #2A3040;
+    --gold:    #E8B84B;
+    --gold2:   #C49A2E;
+    --amber:   #F5C842;
+    --cream:   #EDE8DC;
+    --muted:   #7A8599;
+    --faint:   #3D4558;
+    --green:   #2EC98A;
+    --red:     #E85454;
+    --blue:    #4F8EF7;
+    --purple:  #9B72CF;
+    --font-display: 'Bebas Neue', 'Arial Black', sans-serif;
+    --font-body:    'Crimson Pro', Georgia, serif;
+    --font-mono:    'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--cream); font-family: var(--font-body); line-height: 1.6; overflow-x: hidden; }
+
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(232,184,75,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(232,184,75,0.025) 1px, transparent 1px);
+    background-size: 60px 60px; pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .5;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px; border-bottom: 1px solid var(--border);
+    background: rgba(8,10,12,0.85); backdrop-filter: blur(20px);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; }
+  .nav-logo-icon { width: 28px; height: 28px; background: var(--gold); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+  .nav-logo-text { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 0.15em; color: var(--cream); }
+  .nav-badge { font-family: var(--font-mono); font-size: 0.6rem; color: var(--gold); border: 1px solid var(--gold2); padding: 2px 8px; border-radius: 2px; letter-spacing: 0.1em; }
+  .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+  .nav-links a { font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; transition: color .2s; }
+  .nav-links a:hover { color: var(--cream); }
+  .nav-cta { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; background: var(--gold); color: var(--black); border: none; padding: 10px 24px; cursor: pointer; transition: background .2s; text-decoration: none; }
+  .nav-cta:hover { background: var(--amber); }
+
+  /* HERO */
+  .hero { position: relative; z-index: 1; padding: 160px 48px 100px; max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr 420px; gap: 80px; align-items: center; }
+  .hero-eyebrow { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+  .hero-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--gold); }
+  h1 { font-family: var(--font-display); font-size: clamp(4rem, 8vw, 7.5rem); line-height: 0.92; letter-spacing: 0.02em; color: var(--cream); margin-bottom: 28px; }
+  h1 em { font-style: normal; color: var(--gold); display: block; }
+  .hero-sub { font-size: 1.2rem; font-weight: 300; color: var(--muted); max-width: 500px; line-height: 1.7; margin-bottom: 40px; }
+  .hero-sub strong { color: var(--cream); font-weight: 400; }
+  .hero-actions { display: flex; align-items: center; gap: 20px; }
+  .btn-primary { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; background: var(--gold); color: var(--black); border: none; padding: 16px 36px; cursor: pointer; transition: background .2s, transform .15s; text-decoration: none; display: inline-block; }
+  .btn-primary:hover { background: var(--amber); transform: translateY(-1px); }
+  .btn-ghost { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; background: transparent; color: var(--muted); border: 1px solid var(--border2); padding: 15px 36px; cursor: pointer; transition: color .2s, border-color .2s; text-decoration: none; display: inline-block; }
+  .btn-ghost:hover { color: var(--cream); border-color: var(--muted); }
+  .hero-visual { position: relative; display: flex; align-items: center; justify-content: center; }
+  .score-ring-wrapper { position: relative; width: 320px; height: 320px; }
+  .score-ring-wrapper svg { animation: spinSlow 40s linear infinite; }
+  @keyframes spinSlow { to { transform: rotate(360deg); } }
+  .score-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  .score-ring-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+  .score-ring-number { font-family: var(--font-display); font-size: 4.5rem; line-height: 1; color: var(--gold); }
+  .score-ring-sub { font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; }
+  .hero-domain-tags { position: absolute; display: flex; flex-direction: column; gap: 8px; right: -40px; top: 50%; transform: translateY(-50%); }
+  .domain-tag { background: var(--card); border: 1px solid var(--border); border-left: 2px solid var(--gold); padding: 6px 12px; font-family: var(--font-mono); font-size: 0.58rem; color: var(--muted); letter-spacing: 0.05em; white-space: nowrap; animation: fadeSlideIn 0.5s ease both; }
+  .domain-tag span { color: var(--green); margin-left: 8px; }
+  .domain-tag.warn span { color: var(--amber); }
+  .domain-tag.crit span { color: var(--red); }
+  @keyframes fadeSlideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+  /* SEPARATOR */
+  .separator { position: relative; z-index: 1; display: flex; align-items: center; overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); height: 44px; background: var(--surface); }
+  .sep-item { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--faint); padding: 0 28px; border-right: 1px solid var(--border); height: 100%; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0; }
+  .sep-item strong { color: var(--gold); margin-right: 8px; }
+
+  /* SECTIONS */
+  section { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 100px 48px; }
+  .section-label { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .section-label::before { content: '//'; opacity: .4; }
+  h2 { font-family: var(--font-display); font-size: clamp(2.8rem, 5vw, 4.5rem); line-height: 1; letter-spacing: 0.04em; color: var(--cream); margin-bottom: 20px; }
+  h2 em { font-style: normal; color: var(--gold); }
+  .section-intro { font-size: 1.15rem; font-weight: 300; color: var(--muted); max-width: 580px; margin-bottom: 60px; line-height: 1.75; }
+
+  /* AUDIT GRID */
+  .audit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .audit-card { background: var(--card); padding: 36px 32px; transition: background .2s; }
+  .audit-card:hover { background: #161b24; }
+  .audit-card-icon { width: 40px; height: 40px; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 20px; color: var(--gold); }
+  .audit-card h3 { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0.06em; color: var(--cream); margin-bottom: 10px; }
+  .audit-card p { font-size: 0.95rem; color: var(--muted); line-height: 1.65; }
+
+  /* DOMAINS */
+  .domains-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+  .domain-list { display: flex; flex-direction: column; border: 1px solid var(--border); }
+  .domain-row { display: flex; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--border); transition: background .2s; cursor: default; }
+  .domain-row:last-child { border-bottom: none; }
+  .domain-row:hover { background: rgba(232,184,75,0.04); }
+  .domain-row.new-domain { background: rgba(155,114,207,0.06); border-left: 2px solid var(--purple); }
+  .domain-row-num { font-family: var(--font-mono); font-size: 0.6rem; color: var(--faint); width: 20px; flex-shrink: 0; }
+  .domain-row-name { font-family: var(--font-mono); font-size: 0.72rem; color: var(--cream); flex: 1; letter-spacing: 0.04em; }
+  .domain-row-controls { font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted); }
+  .domain-row-weight { font-family: var(--font-mono); font-size: 0.6rem; color: var(--gold); width: 36px; text-align: right; }
+  .domain-row-weight.top { color: var(--purple); }
+  .new-badge { font-family: var(--font-mono); font-size: 0.5rem; background: var(--purple); color: var(--black); padding: 2px 5px; letter-spacing: 0.05em; margin-left: 6px; }
+  .domains-explainer { display: flex; flex-direction: column; gap: 24px; }
+  .explainer-block { border-left: 2px solid var(--gold); padding-left: 20px; }
+  .explainer-block.governance { border-left-color: var(--purple); }
+  .explainer-block h4 { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.06em; color: var(--cream); margin-bottom: 6px; }
+  .explainer-block p { font-size: 0.92rem; color: var(--muted); line-height: 1.6; }
+
+  /* GOVERNANCE SECTION */
+  .governance-section { background: linear-gradient(to bottom, transparent, rgba(155,114,207,0.04) 20%, rgba(155,114,207,0.04) 80%, transparent); border-top: 1px solid rgba(155,114,207,0.2); border-bottom: 1px solid rgba(155,114,207,0.2); }
+  .governance-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 48px; }
+  .gov-card { background: var(--card); padding: 28px 24px; transition: background .2s; }
+  .gov-card:hover { background: #161b24; }
+  .gov-control-id { font-family: var(--font-mono); font-size: 0.6rem; color: var(--purple); letter-spacing: 0.1em; margin-bottom: 8px; }
+  .gov-card h4 { font-family: var(--font-display); font-size: 1.15rem; letter-spacing: 0.06em; color: var(--cream); margin-bottom: 8px; line-height: 1.1; }
+  .gov-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+  .gov-severity { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.1em; padding: 3px 8px; border-radius: 2px; display: inline-block; }
+  .gov-severity.critical { background: rgba(232,84,84,0.15); color: var(--red); border: 1px solid rgba(232,84,84,0.3); }
+  .gov-severity.major { background: rgba(245,200,66,0.12); color: var(--amber); border: 1px solid rgba(245,200,66,0.3); }
+
+  /* REGIONAL COMPLIANCE */
+  .regional-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .region-tabs { display: flex; gap: 0; border: 1px solid var(--border); margin-bottom: 40px; }
+  .region-tab { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 14px 24px; cursor: pointer; color: var(--muted); background: transparent; border: none; border-right: 1px solid var(--border); transition: all .2s; white-space: nowrap; }
+  .region-tab:last-child { border-right: none; }
+  .region-tab.active { background: rgba(232,184,75,0.08); color: var(--gold); }
+  .region-tab:hover:not(.active) { color: var(--cream); background: rgba(255,255,255,0.02); }
+  .region-content { display: none; }
+  .region-content.active { display: block; }
+  .region-header { display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: start; margin-bottom: 32px; }
+  .region-law { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 8px; }
+  .region-desc { font-size: 1rem; color: var(--muted); line-height: 1.65; max-width: 580px; }
+  .region-score-impact { background: var(--card); border: 1px solid var(--border); padding: 20px 28px; text-align: center; min-width: 180px; }
+  .region-score-impact-label { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+  .region-score-impact-value { font-family: var(--font-display); font-size: 2.5rem; color: var(--gold); line-height: 1; }
+  .region-score-impact-sub { font-family: var(--font-mono); font-size: 0.55rem; color: var(--faint); margin-top: 4px; }
+  .region-controls { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); }
+  .region-control-row { display: flex; align-items: center; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--border); }
+  .region-control-row:last-child { border-bottom: none; }
+  .region-control-id { font-family: var(--font-mono); font-size: 0.58rem; color: var(--purple); width: 64px; flex-shrink: 0; }
+  .region-control-name { font-family: var(--font-mono); font-size: 0.7rem; color: var(--cream); flex: 1; }
+  .region-control-domain { font-family: var(--font-mono); font-size: 0.6rem; color: var(--faint); width: 80px; }
+  .mandatory-badge { font-family: var(--font-mono); font-size: 0.52rem; padding: 2px 6px; }
+  .mandatory-badge.required { color: var(--red); border: 1px solid rgba(232,84,84,0.4); }
+  .mandatory-badge.recommended { color: var(--muted); border: 1px solid var(--border2); }
+
+  /* CERT LADDER */
+  .cert-ladder { display: flex; flex-direction: column; border: 1px solid var(--border); overflow: hidden; }
+  .cert-row { display: flex; align-items: stretch; border-bottom: 1px solid var(--border); transition: background .2s; }
+  .cert-row:last-child { border-bottom: none; }
+  .cert-row:hover { background: rgba(232,184,75,0.04); }
+  .cert-row.current { background: rgba(232,184,75,0.06); }
+  .cert-level-badge { width: 100px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1.1rem; letter-spacing: 0.1em; border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; }
+  .cert-level-badge.achieved { color: var(--gold); }
+  .cert-level-badge.current-level { color: var(--black); background: var(--gold); }
+  .cert-level-badge.future { color: var(--faint); }
+  .cert-row-content { flex: 1; padding: 16px 24px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+  .cert-row-title { font-family: var(--font-mono); font-size: 0.72rem; color: var(--cream); letter-spacing: 0.05em; }
+  .cert-row-desc { font-size: 0.88rem; color: var(--muted); }
+  .cert-row-threshold { width: 80px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1.6rem; color: var(--faint); border-left: 1px solid var(--border); flex-shrink: 0; }
+  .cert-row.current .cert-row-threshold { color: var(--gold); }
+  .cert-governance-req { margin-top: 6px; font-family: var(--font-mono); font-size: 0.6rem; color: var(--purple); }
+
+  /* HOW IT WORKS */
+  .steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); }
+  .step-card { padding: 36px 28px; border-right: 1px solid var(--border); position: relative; transition: background .2s; }
+  .step-card:last-child { border-right: none; }
+  .step-card:hover { background: rgba(232,184,75,0.04); }
+  .step-num { font-family: var(--font-display); font-size: 3.5rem; color: var(--gold); opacity: 0.25; line-height: 1; margin-bottom: 12px; }
+  .step-card h3 { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 0.06em; color: var(--cream); margin-bottom: 10px; }
+  .step-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+  .step-arrow { position: absolute; right: -10px; top: 50%; transform: translateY(-50%); color: var(--gold); font-size: 1rem; z-index: 2; }
+
+  /* DB PROVIDERS */
+  .providers-section { background: linear-gradient(to bottom, transparent, var(--surface) 20%, var(--surface) 80%, transparent); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .db-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 48px; }
+  .db-card { background: var(--card); padding: 24px 28px; display: flex; align-items: flex-start; gap: 16px; transition: background .2s; }
+  .db-card:hover { background: #161b24; }
+  .db-icon { width: 38px; height: 38px; flex-shrink: 0; background: var(--surface); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+  .db-info h4 { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; color: var(--cream); margin-bottom: 4px; }
+  .db-info p { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+  .db-vector-badge { margin-top: 6px; font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); border: 1px solid rgba(46,201,138,0.3); padding: 2px 6px; display: inline-block; }
+  .db-vector-badge.fallback { color: var(--amber); border-color: rgba(245,200,66,0.3); }
+
+  /* PROOF */
+  .proof-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .proof-card { background: var(--card); padding: 36px 32px; }
+  .proof-score { font-family: var(--font-display); font-size: 3rem; color: var(--gold); line-height: 1; margin-bottom: 4px; }
+  .proof-score-band { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .proof-quote { font-size: 0.95rem; font-style: italic; color: var(--muted); line-height: 1.65; margin-bottom: 20px; }
+  .proof-author { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; color: var(--cream); }
+  .proof-author span { color: var(--faint); display: block; margin-top: 2px; }
+
+  /* FAQ */
+  .faq-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .faq-layout { display: grid; grid-template-columns: 280px 1fr; gap: 64px; align-items: start; }
+  .faq-sidebar h2 { font-size: clamp(2rem, 3vw, 3rem); margin-bottom: 16px; }
+  .faq-sidebar p { font-size: 1rem; color: var(--muted); line-height: 1.7; margin-bottom: 32px; }
+  .faq-categories { display: flex; flex-direction: column; gap: 8px; }
+  .faq-cat-btn { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 16px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; text-align: left; transition: all .2s; }
+  .faq-cat-btn.active { background: rgba(232,184,75,0.08); color: var(--gold); border-color: var(--gold2); }
+  .faq-cat-btn:hover:not(.active) { color: var(--cream); }
+  .faq-list { display: flex; flex-direction: column; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-item:first-child { border-top: 1px solid var(--border); }
+  .faq-question { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; cursor: pointer; font-family: var(--font-body); font-size: 1.05rem; color: var(--cream); transition: color .2s; gap: 16px; }
+  .faq-question:hover { color: var(--gold); }
+  .faq-toggle { font-family: var(--font-mono); font-size: 1rem; color: var(--gold); flex-shrink: 0; transition: transform .25s; }
+  .faq-item.open .faq-toggle { transform: rotate(45deg); }
+  .faq-answer { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+  .faq-answer-inner { padding: 0 0 24px; font-size: 0.95rem; color: var(--muted); line-height: 1.75; }
+  .faq-answer-inner strong { color: var(--cream); }
+  .faq-answer-inner code { font-family: var(--font-mono); font-size: 0.82em; color: var(--gold); background: rgba(232,184,75,0.08); padding: 1px 6px; border-radius: 2px; }
+  .faq-group { display: none; }
+  .faq-group.active { display: block; }
+
+  /* AUDIT AGENT */
+  .agent-section { background: linear-gradient(135deg, rgba(155,114,207,0.04) 0%, rgba(79,142,247,0.04) 100%); border-top: 1px solid rgba(155,114,207,0.2); border-bottom: 1px solid rgba(155,114,207,0.2); }
+  .agent-layout { display: grid; grid-template-columns: 1fr 540px; gap: 64px; align-items: start; }
+  .agent-info { padding-top: 20px; }
+  .agent-info h2 { margin-bottom: 16px; }
+  .agent-info p { font-size: 1.05rem; color: var(--muted); line-height: 1.7; margin-bottom: 28px; }
+  .agent-guardrail-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .guardrail-item { display: flex; align-items: flex-start; gap: 12px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); letter-spacing: 0.02em; }
+  .guardrail-item::before { content: '⊠'; color: var(--red); flex-shrink: 0; }
+  .guardrail-item.ok::before { content: '⊡'; color: var(--green); }
+  .agent-widget { background: var(--card); border: 1px solid var(--border); display: flex; flex-direction: column; height: 520px; }
+  .agent-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .agent-header-title { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; color: var(--cream); }
+  .agent-status { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.6rem; color: var(--green); }
+  .agent-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s ease infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .agent-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+  .agent-msg { max-width: 85%; }
+  .agent-msg.bot { align-self: flex-start; }
+  .agent-msg.user { align-self: flex-end; }
+  .agent-msg-bubble { padding: 12px 16px; font-size: 0.88rem; line-height: 1.6; }
+  .agent-msg.bot .agent-msg-bubble { background: var(--surface); border: 1px solid var(--border); color: var(--cream); border-radius: 0 8px 8px 8px; }
+  .agent-msg.user .agent-msg-bubble { background: rgba(232,184,75,0.1); border: 1px solid rgba(232,184,75,0.2); color: var(--cream); border-radius: 8px 0 8px 8px; }
+  .agent-msg-sender { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.08em; color: var(--faint); margin-bottom: 4px; }
+  .agent-msg.user .agent-msg-sender { text-align: right; }
+  .agent-typing { display: none; align-self: flex-start; }
+  .agent-typing.visible { display: flex; }
+  .agent-typing-bubble { background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; display: flex; gap: 4px; align-items: center; border-radius: 0 8px 8px 8px; }
+  .agent-typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: typingDot 1.2s ease infinite; }
+  .agent-typing-dot:nth-child(2) { animation-delay: .2s; }
+  .agent-typing-dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes typingDot { 0%, 100% { opacity: .3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
+  .agent-input-row { padding: 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+  .agent-input { flex: 1; background: var(--black); border: 1px solid var(--border2); color: var(--cream); padding: 10px 14px; font-family: var(--font-body); font-size: 0.9rem; outline: none; transition: border-color .2s; }
+  .agent-input:focus { border-color: var(--gold); }
+  .agent-input::placeholder { color: var(--faint); }
+  .agent-send { background: var(--gold); color: var(--black); border: none; padding: 10px 18px; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; cursor: pointer; transition: background .2s; white-space: nowrap; }
+  .agent-send:hover { background: var(--amber); }
+  .agent-send:disabled { opacity: 0.5; cursor: not-allowed; }
+  .agent-footer { padding: 8px 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .agent-counter { font-family: var(--font-mono); font-size: 0.58rem; color: var(--faint); }
+  .agent-guardrail-note { font-family: var(--font-mono); font-size: 0.58rem; color: var(--faint); }
+  .agent-region-selector { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .region-pill { font-family: var(--font-mono); font-size: 0.6rem; padding: 4px 10px; border: 1px solid var(--border2); color: var(--muted); cursor: pointer; transition: all .2s; }
+  .region-pill.active { border-color: var(--gold); color: var(--gold); background: rgba(232,184,75,0.06); }
+  .region-pill:hover:not(.active) { color: var(--cream); border-color: var(--muted); }
+  .agent-region-label { font-family: var(--font-mono); font-size: 0.6rem; color: var(--faint); margin-bottom: 6px; letter-spacing: 0.08em; }
+  .suggested-questions { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+  .suggested-q { font-family: var(--font-mono); font-size: 0.62rem; color: var(--muted); padding: 6px 12px; border: 1px solid var(--border); cursor: pointer; transition: all .2s; text-align: left; background: transparent; }
+  .suggested-q:hover { color: var(--gold); border-color: var(--gold2); background: rgba(232,184,75,0.04); }
+
+  /* FORM */
+  .form-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 100px 0; }
+  .form-layout { display: grid; grid-template-columns: 1fr 520px; gap: 80px; align-items: start; }
+  .form-left h2 { margin-bottom: 16px; }
+  .form-left p { font-size: 1.05rem; color: var(--muted); line-height: 1.7; margin-bottom: 36px; }
+  .form-trust { display: flex; flex-direction: column; gap: 12px; }
+  .trust-item { display: flex; align-items: center; gap: 12px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); letter-spacing: 0.05em; }
+  .trust-item::before { content: '✓'; color: var(--green); font-size: 0.8rem; }
+  .audit-form { background: var(--card); border: 1px solid var(--border); padding: 40px; }
+  .form-header { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 0.08em; color: var(--cream); margin-bottom: 4px; }
+  .form-subheader { font-size: 0.9rem; color: var(--muted); margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); font-style: italic; }
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .form-group label span { color: var(--gold); margin-left: 3px; }
+  .form-input { width: 100%; background: var(--black); border: 1px solid var(--border2); color: var(--cream); padding: 12px 16px; font-family: var(--font-body); font-size: 0.95rem; outline: none; transition: border-color .2s; }
+  .form-input:focus { border-color: var(--gold); }
+  .form-input::placeholder { color: var(--faint); }
+  .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23E8B84B'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-checklist { border: 1px solid var(--border); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .check-option { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: var(--muted); cursor: pointer; }
+  .check-option input[type="checkbox"] { accent-color: var(--gold); width: 14px; height: 14px; }
+  .submit-btn { width: 100%; background: var(--gold); color: var(--black); border: none; padding: 18px; font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 0.12em; cursor: pointer; transition: background .2s, transform .15s; margin-top: 8px; }
+  .submit-btn:hover { background: var(--amber); transform: translateY(-1px); }
+  .form-disclaimer { font-size: 0.78rem; color: var(--faint); text-align: center; margin-top: 12px; font-style: italic; }
+
+  /* FINAL CTA */
+  .final-cta { text-align: center; padding: 120px 48px; }
+  .final-cta h2 { font-size: clamp(3rem, 7vw, 6rem); max-width: 900px; margin: 0 auto 24px; line-height: 1; }
+  .final-cta p { font-size: 1.1rem; color: var(--muted); max-width: 480px; margin: 0 auto 40px; line-height: 1.7; }
+  .glow-gold { position: absolute; width: 500px; height: 500px; background: radial-gradient(circle, rgba(232,184,75,0.08) 0%, transparent 70%); pointer-events: none; }
+  .glow-purple { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(155,114,207,0.06) 0%, transparent 70%); pointer-events: none; }
+
+  footer { position: relative; z-index: 1; border-top: 1px solid var(--border); background: var(--surface); padding: 40px 48px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-left { font-family: var(--font-mono); font-size: 0.65rem; color: var(--faint); letter-spacing: 0.1em; }
+  .footer-links { display: flex; gap: 28px; list-style: none; }
+  .footer-links a { font-family: var(--font-mono); font-size: 0.65rem; color: var(--faint); text-decoration: none; letter-spacing: 0.08em; transition: color .2s; }
+  .footer-links a:hover { color: var(--gold); }
+
+  @keyframes revealUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .reveal { animation: revealUp .7s ease both; }
+  .reveal-1 { animation-delay: .1s; }
+  .reveal-2 { animation-delay: .2s; }
+  .reveal-3 { animation-delay: .3s; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(8,10,12,0.92); z-index: 1000; display: none; align-items: center; justify-content: center; }
+  .modal-overlay.active { display: flex; }
+  .modal { background: var(--card); border: 1px solid var(--gold); padding: 60px; max-width: 520px; text-align: center; animation: revealUp .4s ease; }
+  .modal-icon { font-size: 3rem; margin-bottom: 20px; }
+  .modal h3 { font-family: var(--font-display); font-size: 2.5rem; letter-spacing: 0.08em; color: var(--gold); margin-bottom: 12px; }
+  .modal p { font-size: 1rem; color: var(--muted); line-height: 1.65; margin-bottom: 28px; }
+  .modal-close { background: var(--gold); color: var(--black); border: none; padding: 14px 32px; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon"></div>
+    <span class="nav-logo-text">ZENITH</span>
+    <span class="nav-badge">AI OS v1.1</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">Process</a></li>
+    <li><a href="#domains">13 Domains</a></li>
+    <li><a href="#governance">Governance</a></li>
+    <li><a href="#regional">Regional</a></li>
+    <li><a href="#certification">Certification</a></li>
+    <li><a href="#agent">AI Agent</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#audit-form" class="nav-cta">Get Free Audit</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="glow-gold" style="top:-100px;left:-100px;"></div>
+  <div>
+    <div class="hero-eyebrow reveal">Free AI OS Audit · v1.1 · Now With Governance + Regional Compliance</div>
+    <h1 class="reveal reveal-1">WHAT SCORE DOES YOUR<br><em>AI PRODUCT</em><br>GET?</h1>
+    <p class="hero-sub reveal reveal-2">
+      In <strong>under 5 minutes</strong>, your product is scored across <strong>65 controls in 13 domains</strong> — now including <strong>AI Governance & regional compliance overlays</strong> for EU, US, UK, Singapore, and Canada.
+    </p>
+    <div class="hero-actions reveal reveal-3">
+      <a href="#audit-form" class="btn-primary">Start My Free Audit →</a>
+      <a href="#domains" class="btn-ghost">See All 65 Controls</a>
+    </div>
+  </div>
+  <div class="hero-visual reveal reveal-2">
+    <div class="score-ring-wrapper">
+      <svg viewBox="0 0 320 320" width="320" height="320">
+        <g stroke="rgba(232,184,75,0.15)" stroke-width="1">
+          <line x1="160" y1="4" x2="160" y2="14"/>
+          <line x1="316" y1="160" x2="306" y2="160"/>
+          <line x1="160" y1="316" x2="160" y2="306"/>
+          <line x1="4" y1="160" x2="14" y2="160"/>
+        </g>
+        <circle cx="160" cy="160" r="140" fill="none" stroke="rgba(30,37,48,0.8)" stroke-width="12"/>
+        <circle cx="160" cy="160" r="140" fill="none" stroke="rgba(232,184,75,0.1)" stroke-width="1" stroke-dasharray="4 8"/>
+        <circle cx="160" cy="160" r="140" fill="none" stroke="url(#goldGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="549.8 879.6" transform="rotate(-90 160 160)"/>
+        <circle cx="160" cy="160" r="114" fill="none" stroke="rgba(30,37,48,0.6)" stroke-width="6"/>
+        <circle cx="160" cy="160" r="114" fill="none" stroke="rgba(232,184,75,0.2)" stroke-width="6" stroke-dasharray="224 716" transform="rotate(-90 160 160)"/>
+        <defs>
+          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#E8B84B"/>
+            <stop offset="100%" stop-color="#F5C842"/>
+          </linearGradient>
+        </defs>
+        <circle cx="160" cy="20" r="3" fill="rgba(232,184,75,0.5)"/>
+        <circle cx="300" cy="160" r="3" fill="rgba(232,184,75,0.5)"/>
+      </svg>
+      <div class="score-ring-center">
+        <span class="score-ring-label">Your score</span>
+        <span class="score-ring-number">?</span>
+        <span class="score-ring-sub">/ 100</span>
+      </div>
+    </div>
+    <div class="hero-domain-tags">
+      <div class="domain-tag" style="animation-delay:.1s">Security Trust<span>82</span></div>
+      <div class="domain-tag" style="animation-delay:.2s">Agent Orchestration<span>72</span></div>
+      <div class="domain-tag warn" style="animation-delay:.3s">Workflow Engine<span>55</span></div>
+      <div class="domain-tag warn" style="animation-delay:.4s">Observability<span>35</span></div>
+      <div class="domain-tag crit" style="animation-delay:.5s">AI Governance<span>8</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SEPARATOR -->
+<div class="separator">
+  <div class="sep-item"><strong>65</strong> CONTROLS EVALUATED</div>
+  <div class="sep-item"><strong>13</strong> DOMAINS SCORED</div>
+  <div class="sep-item"><strong>5</strong> CERT LEVELS</div>
+  <div class="sep-item"><strong>6</strong> REGIONAL FRAMEWORKS</div>
+  <div class="sep-item"><strong>9</strong> DB PROVIDERS</div>
+  <div class="sep-item"><strong>100%</strong> FREE · NO CC</div>
+  <div class="sep-item"><strong>48H</strong> TURNAROUND</div>
+  <div class="sep-item"><strong>90-DAY</strong> ROADMAP</div>
+</div>
+
+<!-- WHAT YOU GET -->
+<section id="what-you-get">
+  <div class="section-label">What You Get</div>
+  <h2>A COMPLETE <em>AI OS</em> REPORT</h2>
+  <p class="section-intro">Not a checklist. A scored, structured, actionable report across all 13 domains — including governance compliance, regional law alignment, and a 90-day remediation roadmap.</p>
+  <div class="audit-grid">
+    <div class="audit-card"><div class="audit-card-icon">◎</div><h3>AI OS Score</h3><p>Scored 0–100 across 65 controls, weighted by domain criticality. Overall score, 13 domain scores, and maturity band.</p></div>
+    <div class="audit-card"><div class="audit-card-icon">◈</div><h3>Certification Level</h3><p>Earn AIOS-L1 through AIOS-L5 certification. Clear thresholds, including new governance gates at L3 and above.</p></div>
+    <div class="audit-card"><div class="audit-card-icon">⊞</div><h3>Full Gap Register</h3><p>Every gap documented: domain, severity, score impact, remediation action, and whether it's regionally mandated.</p></div>
+    <div class="audit-card"><div class="audit-card-icon">◇</div><h3>Regional Compliance Score</h3><p>A separate compliance score for your operating jurisdiction — EU AI Act, NIST AI RMF, UK Framework, and more.</p></div>
+    <div class="audit-card"><div class="audit-card-icon">↺</div><h3>90-Day Roadmap</h3><p>Phased remediation: P0 blockers in 30 days, L3 path at 60 days, governance maturity by day 90.</p></div>
+    <div class="audit-card"><div class="audit-card-icon">⊙</div><h3>Risk Register</h3><p>Active risks by likelihood × impact, with owner recommendations. Includes regulatory risk classification.</p></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" style="padding-top:0">
+  <div class="section-label">Process</div>
+  <h2>HOW THE <em>AUDIT</em> WORKS</h2>
+  <p class="section-intro">Four steps from form submission to scored report. Every score is traceable to specific controls and evidence — no black box.</p>
+  <div class="steps-grid">
+    <div class="step-card"><div class="step-num">01</div><h3>Submit Form</h3><p>Tell us your stack, current modules, DB provider, AI capabilities, and operating jurisdiction for regional overlay.</p><div class="step-arrow">→</div></div>
+    <div class="step-card"><div class="step-num">02</div><h3>Evidence Review</h3><p>We evaluate all 65 controls across 13 domains. Each scored 0–5 with documented rationale and regional law mapping.</p><div class="step-arrow">→</div></div>
+    <div class="step-card"><div class="step-num">03</div><h3>Score & Certify</h3><p>Domain scores weighted and aggregated. Regional compliance multiplier applied. Certification level assigned.</p><div class="step-arrow">→</div></div>
+    <div class="step-card"><div class="step-num">04</div><h3>Receive Report</h3><p>Full PDF and interactive dashboard — gap register, roadmap, risk register, and regional compliance breakdown.</p></div>
+  </div>
+</section>
+
+<!-- 13 DOMAINS -->
+<section id="domains">
+  <div class="section-label">Evaluation Framework</div>
+  <h2>13 DOMAINS. <em>65 CONTROLS.</em></h2>
+  <p class="section-intro">AIOS-STANDARD-v1.1 covers every layer — from agent orchestration to AI governance. Domain 13 is new in v1.1 and carries the highest single weight.</p>
+  <div class="domains-layout">
+    <div class="domain-list">
+      <div class="domain-row"><span class="domain-row-num">01</span><span class="domain-row-name">IDENTITY & CONTEXT</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">7%</span></div>
+      <div class="domain-row"><span class="domain-row-num">02</span><span class="domain-row-name">MEMORY & STATE</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">7%</span></div>
+      <div class="domain-row"><span class="domain-row-num">03</span><span class="domain-row-name">AGENT ORCHESTRATION</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">9%</span></div>
+      <div class="domain-row"><span class="domain-row-num">04</span><span class="domain-row-name">TOOL / ACTION EXECUTION</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">8%</span></div>
+      <div class="domain-row"><span class="domain-row-num">05</span><span class="domain-row-name">WORKFLOW ENGINE</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">8%</span></div>
+      <div class="domain-row"><span class="domain-row-num">06</span><span class="domain-row-name">KNOWLEDGE RETRIEVAL</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">7%</span></div>
+      <div class="domain-row"><span class="domain-row-num">07</span><span class="domain-row-name">POLICY ENGINE</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">8%</span></div>
+      <div class="domain-row"><span class="domain-row-num">08</span><span class="domain-row-name">INTERFACE & EXPERIENCE</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">6%</span></div>
+      <div class="domain-row"><span class="domain-row-num">09</span><span class="domain-row-name">SECURITY & TRUST</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">9%</span></div>
+      <div class="domain-row"><span class="domain-row-num">10</span><span class="domain-row-name">OBSERVABILITY</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">7%</span></div>
+      <div class="domain-row"><span class="domain-row-num">11</span><span class="domain-row-name">EXTENSIBILITY</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">6%</span></div>
+      <div class="domain-row"><span class="domain-row-num">12</span><span class="domain-row-name">DEPLOYMENT & PORTABILITY</span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight">6%</span></div>
+      <div class="domain-row new-domain"><span class="domain-row-num">13</span><span class="domain-row-name">AI GOVERNANCE & RESPONSIBLE AI <span class="new-badge">NEW</span></span><span class="domain-row-controls">5 controls</span><span class="domain-row-weight top">12%</span></div>
+    </div>
+    <div class="domains-explainer">
+      <div class="explainer-block"><h4>Scoring Model</h4><p>Each control scored 0–5: <em>Missing → Ad-hoc → Partial → Functional → Production-grade → Standard-ready.</em> Domain score = average × 20 (0–100 scale).</p></div>
+      <div class="explainer-block"><h4>Weighted Aggregation</h4><p>Domains are weighted by operational criticality. In v1.1, AI Governance (12%) now carries the highest weight. A zero in Domain 13 costs 12 points overall.</p></div>
+      <div class="explainer-block governance"><h4>Governance Weight (New in v1.1)</h4><p>Domain 13 is weighted higher than Security and Agent Orchestration because governance failure creates legal, reputational, and regulatory risk that outweighs technical gaps.</p></div>
+      <div class="explainer-block"><h4>Repeatable</h4><p>Run quarterly. The 90-day roadmap is designed to improve your score by 15–25 points per cycle. Track governance maturity over time.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- GOVERNANCE SECTION -->
+<div class="governance-section" id="governance" style="position:relative;z-index:1;">
+<div class="glow-purple" style="left:50%;top:50%;transform:translate(-50%,-50%);"></div>
+<section>
+  <div class="section-label">Domain 13 · New in v1.1</div>
+  <h2>AI GOVERNANCE &<br><em>RESPONSIBLE AI.</em></h2>
+  <p class="section-intro">Most AI products score 0 in Domain 13. It's the gap between "we ship AI features" and "we ship AI responsibly." The five controls below define what responsible means operationally.</p>
+  <div class="governance-grid">
+    <div class="gov-card">
+      <div class="gov-control-id">CONTROL 13.1</div>
+      <h4>GOVERNANCE POLICY</h4>
+      <p>A public, versioned AI governance policy document linked from the product. Not a blog post — a structured policy with scope, principles, and update cadence.</p>
+      <span class="gov-severity critical">CRITICAL IF MISSING</span>
+    </div>
+    <div class="gov-card">
+      <div class="gov-control-id">CONTROL 13.2</div>
+      <h4>BIAS & FAIRNESS TESTING</h4>
+      <p>Bias and fairness evaluation integrated into the release pipeline. Automated gates with defined thresholds. Not manual spot-checks — CI/CD embedded.</p>
+      <span class="gov-severity critical">CRITICAL IF MISSING</span>
+    </div>
+    <div class="gov-card">
+      <div class="gov-control-id">CONTROL 13.3</div>
+      <h4>HUMAN OVERSIGHT</h4>
+      <p>A documented human-in-the-loop mechanism for high-risk AI decisions. Automated escalation + logged override trail. Required for EU AI Act high-risk classification.</p>
+      <span class="gov-severity critical">CRITICAL IF MISSING</span>
+    </div>
+    <div class="gov-card">
+      <div class="gov-control-id">CONTROL 13.4</div>
+      <h4>EXPLAINABILITY</h4>
+      <p>AI outputs are auditable. Full trace, confidence scores, and a published model card. Users and regulators can understand why the system produced a given output.</p>
+      <span class="gov-severity major">MAJOR IF MISSING</span>
+    </div>
+    <div class="gov-card">
+      <div class="gov-control-id">CONTROL 13.5</div>
+      <h4>ETHICS REVIEW PROCESS</h4>
+      <p>A formal ethics review gate before new AI capabilities ship. Not a checkbox — a structured review with documented outcomes and sign-off authority.</p>
+      <span class="gov-severity major">MAJOR IF MISSING</span>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- REGIONAL COMPLIANCE -->
+<div class="regional-section" id="regional" style="position:relative;z-index:1;">
+<section>
+  <div class="section-label">Regional Compliance Overlays · New in v1.1</div>
+  <h2>YOUR SCORE ADJUSTS<br><em>BY JURISDICTION.</em></h2>
+  <p class="section-intro">The AIOS base score is universal. But the law isn't. Select your operating region and see which additional mandatory controls apply — and how they affect your score.</p>
+
+  <div class="region-tabs">
+    <button class="region-tab active" onclick="showRegion('eu',this)">🇪🇺 EU AI Act</button>
+    <button class="region-tab" onclick="showRegion('us',this)">🇺🇸 NIST / EO 14110</button>
+    <button class="region-tab" onclick="showRegion('uk',this)">🇬🇧 UK AI Framework</button>
+    <button class="region-tab" onclick="showRegion('sg',this)">🇸🇬 Singapore MAS</button>
+    <button class="region-tab" onclick="showRegion('ca',this)">🇨🇦 Canada AIDA</button>
+    <button class="region-tab" onclick="showRegion('iso',this)">🌏 ISO 42001</button>
+  </div>
+
+  <!-- EU -->
+  <div class="region-content active" id="region-eu">
+    <div class="region-header">
+      <div>
+        <div class="region-law">EU AI Act · Regulation (EU) 2024/1689 · In force Aug 2024</div>
+        <p class="region-desc">The EU AI Act is the world's first comprehensive AI law. It classifies AI systems by risk level — Unacceptable, High, Limited, Minimal — and imposes conformity assessments, transparency obligations, and human oversight mandates for high-risk systems. Non-compliance carries fines up to €35M or 7% of global annual turnover.</p>
+      </div>
+      <div class="region-score-impact">
+        <div class="region-score-impact-label">SCORE MULTIPLIER</div>
+        <div class="region-score-impact-value">×0.85–1.0</div>
+        <div class="region-score-impact-sub">based on mandatory gate pass rate</div>
+      </div>
+    </div>
+    <div class="region-controls">
+      <div class="region-control-row"><span class="region-control-id">EU-001</span><span class="region-control-name">Risk classification documented (Unacceptable / High / Limited / Minimal)</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">EU-002</span><span class="region-control-name">Prohibited-use assessment completed (Art. 5 prohibitions)</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">EU-003</span><span class="region-control-name">Conformity assessment for high-risk systems (Annex III)</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">EU-004</span><span class="region-control-name">Human oversight mechanism for high-risk AI (Art. 14)</span><span class="region-control-domain">Domain 3</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">EU-005</span><span class="region-control-name">Technical documentation maintained and accessible (Art. 11)</span><span class="region-control-domain">Domain 10</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">EU-006</span><span class="region-control-name">GPAI model transparency obligations met (Art. 53)</span><span class="region-control-domain">Domain 8</span><span class="mandatory-badge recommended">RECOMMENDED</span></div>
+      <div class="region-control-row"><span class="region-control-id">EU-007</span><span class="region-control-name">Post-market monitoring system in place (Art. 72)</span><span class="region-control-domain">Domain 10</span><span class="mandatory-badge recommended">RECOMMENDED</span></div>
+    </div>
+  </div>
+
+  <!-- US -->
+  <div class="region-content" id="region-us">
+    <div class="region-header">
+      <div>
+        <div class="region-law">NIST AI RMF 1.0 + Executive Order 14110 · Effective Oct 2023</div>
+        <p class="region-desc">The US framework is principles-based, not prescriptive. NIST AI RMF defines four functions: Govern, Map, Measure, Manage. EO 14110 adds safety reporting requirements for frontier models. Federal agencies and government contractors face stricter mandates; commercial products follow voluntary guidance that is increasingly becoming procurement standard.</p>
+      </div>
+      <div class="region-score-impact">
+        <div class="region-score-impact-label">SCORE MULTIPLIER</div>
+        <div class="region-score-impact-value">×0.90–1.0</div>
+        <div class="region-score-impact-sub">lighter mandatory gate structure</div>
+      </div>
+    </div>
+    <div class="region-controls">
+      <div class="region-control-row"><span class="region-control-id">US-001</span><span class="region-control-name">AI governance function documented (GOVERN core function)</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">US-002</span><span class="region-control-name">AI risk mapping process in place (MAP core function)</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">US-003</span><span class="region-control-name">AI risk measurement and testing (MEASURE core function)</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">US-004</span><span class="region-control-name">Safety evaluations for dual-use foundation models (EO 14110 §4.2)</span><span class="region-control-domain">Domain 9</span><span class="mandatory-badge recommended">RECOMMENDED</span></div>
+      <div class="region-control-row"><span class="region-control-id">US-005</span><span class="region-control-name">AI incident reporting mechanism (MANAGE core function)</span><span class="region-control-domain">Domain 10</span><span class="mandatory-badge recommended">RECOMMENDED</span></div>
+    </div>
+  </div>
+
+  <!-- UK -->
+  <div class="region-content" id="region-uk">
+    <div class="region-header">
+      <div>
+        <div class="region-law">UK AI Regulation Framework · Pro-innovation Approach 2023</div>
+        <p class="region-desc">The UK takes a principles-based, sector-specific approach. Five cross-sector principles apply to all AI: Safety & Security, Transparency & Explainability, Fairness, Accountability & Governance, and Contestability & Redress. Unlike the EU, there is no single binding AI law — sector regulators (FCA, ICO, CQC) apply the principles within their remit.</p>
+      </div>
+      <div class="region-score-impact">
+        <div class="region-score-impact-label">SCORE MULTIPLIER</div>
+        <div class="region-score-impact-value">×0.88–1.0</div>
+        <div class="region-score-impact-sub">5 principles, sector-dependent gates</div>
+      </div>
+    </div>
+    <div class="region-controls">
+      <div class="region-control-row"><span class="region-control-id">UK-001</span><span class="region-control-name">Safety & Security principle implemented and documented</span><span class="region-control-domain">Domain 9</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">UK-002</span><span class="region-control-name">Transparency & Explainability for users and regulators</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">UK-003</span><span class="region-control-name">Fairness assessment — no unlawful discrimination</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">UK-004</span><span class="region-control-name">Accountability & Governance — responsible person designated</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">UK-005</span><span class="region-control-name">Contestability & Redress mechanism for affected persons</span><span class="region-control-domain">Domain 8</span><span class="mandatory-badge recommended">RECOMMENDED</span></div>
+    </div>
+  </div>
+
+  <!-- SG -->
+  <div class="region-content" id="region-sg">
+    <div class="region-header">
+      <div>
+        <div class="region-law">MAS FEAT Principles + Singapore PDPA 2012 (amended 2021)</div>
+        <p class="region-desc">Singapore's Monetary Authority (MAS) FEAT framework applies to financial services AI: Fairness, Ethics, Accountability, Transparency. The PDPA covers data protection. The AI Governance Framework (IMDA/PDPC) provides voluntary guidance for all sectors. Singapore is building towards mandatory requirements for high-impact AI decisions.</p>
+      </div>
+      <div class="region-score-impact">
+        <div class="region-score-impact-label">SCORE MULTIPLIER</div>
+        <div class="region-score-impact-value">×0.87–1.0</div>
+        <div class="region-score-impact-sub">FEAT principles weighted</div>
+      </div>
+    </div>
+    <div class="region-controls">
+      <div class="region-control-row"><span class="region-control-id">SG-001</span><span class="region-control-name">Fairness — bias testing and demographic parity checks</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY (FS)</span></div>
+      <div class="region-control-row"><span class="region-control-id">SG-002</span><span class="region-control-name">Ethics — ethics board or review process in place</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY (FS)</span></div>
+      <div class="region-control-row"><span class="region-control-id">SG-003</span><span class="region-control-name">Accountability — senior accountability for AI decisions</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY (FS)</span></div>
+      <div class="region-control-row"><span class="region-control-id">SG-004</span><span class="region-control-name">Transparency — AI-generated output disclosure to users</span><span class="region-control-domain">Domain 8</span><span class="mandatory-badge recommended">RECOMMENDED</span></div>
+      <div class="region-control-row"><span class="region-control-id">SG-005</span><span class="region-control-name">PDPA data protection impact assessment for AI systems</span><span class="region-control-domain">Domain 1</span><span class="mandatory-badge recommended">RECOMMENDED</span></div>
+    </div>
+  </div>
+
+  <!-- CA -->
+  <div class="region-content" id="region-ca">
+    <div class="region-header">
+      <div>
+        <div class="region-law">Canada AIDA (Artificial Intelligence and Data Act) · Bill C-27</div>
+        <p class="region-desc">Canada's AIDA is part of Bill C-27 and targets "high-impact AI systems" — those that significantly affect individuals in areas like employment, healthcare, and criminal justice. It imposes risk assessment, human oversight, and incident reporting obligations. PIPEDA and provincial privacy laws also apply to AI data processing. AIDA is expected to come into force following royal assent.</p>
+      </div>
+      <div class="region-score-impact">
+        <div class="region-score-impact-label">SCORE MULTIPLIER</div>
+        <div class="region-score-impact-value">×0.88–1.0</div>
+        <div class="region-score-impact-sub">high-impact system gates</div>
+      </div>
+    </div>
+    <div class="region-controls">
+      <div class="region-control-row"><span class="region-control-id">CA-001</span><span class="region-control-name">High-impact system designation assessed and documented</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">CA-002</span><span class="region-control-name">Risk assessment completed for high-impact AI systems</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">CA-003</span><span class="region-control-name">Human oversight mechanism for high-impact decisions</span><span class="region-control-domain">Domain 3</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">CA-004</span><span class="region-control-name">AI incident reporting to the AI and Data Commissioner</span><span class="region-control-domain">Domain 10</span><span class="mandatory-badge recommended">RECOMMENDED</span></div>
+      <div class="region-control-row"><span class="region-control-id">CA-005</span><span class="region-control-name">Plain-language disclosure to individuals affected by AI</span><span class="region-control-domain">Domain 8</span><span class="mandatory-badge recommended">RECOMMENDED</span></div>
+    </div>
+  </div>
+
+  <!-- ISO -->
+  <div class="region-content" id="region-iso">
+    <div class="region-header">
+      <div>
+        <div class="region-law">ISO/IEC 42001:2023 · AI Management System Standard</div>
+        <p class="region-desc">ISO 42001 is the international standard for AI management systems — the AI equivalent of ISO 27001 for security. It provides a certifiable framework for responsible AI development and deployment, applicable globally regardless of jurisdiction. Increasingly required in enterprise procurement and preferred by organisations operating across multiple regulatory regimes.</p>
+      </div>
+      <div class="region-score-impact">
+        <div class="region-score-impact-label">SCORE MULTIPLIER</div>
+        <div class="region-score-impact-value">×0.85–1.0</div>
+        <div class="region-score-impact-sub">strictest universal baseline</div>
+      </div>
+    </div>
+    <div class="region-controls">
+      <div class="region-control-row"><span class="region-control-id">ISO-001</span><span class="region-control-name">AI management system policy established (Clause 5.2)</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">ISO-002</span><span class="region-control-name">AI risk assessment and treatment plan (Clause 6.1)</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">ISO-003</span><span class="region-control-name">AI objectives and planning documented (Clause 6.2)</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">ISO-004</span><span class="region-control-name">Internal audit programme for AI management system (Clause 9.2)</span><span class="region-control-domain">Domain 10</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">ISO-005</span><span class="region-control-name">Management review of AI MS performance (Clause 9.3)</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge required">MANDATORY</span></div>
+      <div class="region-control-row"><span class="region-control-id">ISO-006</span><span class="region-control-name">Continual improvement process established (Clause 10.2)</span><span class="region-control-domain">Domain 13</span><span class="mandatory-badge recommended">RECOMMENDED</span></div>
+    </div>
+  </div>
+
+</section>
+</div>
+
+<!-- CERTIFICATION LADDER -->
+<section id="certification" style="padding-top:0">
+  <div class="section-label">Certification Pathway</div>
+  <h2>FIVE LEVELS.<br><em>ONE DIRECTION.</em></h2>
+  <p class="section-intro">Every AI product starts somewhere. In v1.1, L3 and above now require minimum governance scores — you can't reach Operational AI OS without Domain 13 above 40.</p>
+  <div class="cert-ladder">
+    <div class="cert-row">
+      <div class="cert-level-badge achieved">AIOS-L1</div>
+      <div class="cert-row-content">
+        <div class="cert-row-title">AI ENABLED APPLICATION</div>
+        <div class="cert-row-desc">AI features present: LLM calls, basic automation, prompt-to-response flow. No AI OS infrastructure.</div>
+      </div>
+      <div class="cert-row-threshold">25+</div>
+    </div>
+    <div class="cert-row current">
+      <div class="cert-level-badge current-level">AIOS-L2</div>
+      <div class="cert-row-content">
+        <div class="cert-row-title">WORKFLOW AI PLATFORM</div>
+        <div class="cert-row-desc">Event-driven workflows, basic agent execution, auth controls. Operational but not observable or policy-governed.</div>
+      </div>
+      <div class="cert-row-threshold">38+</div>
+    </div>
+    <div class="cert-row">
+      <div class="cert-level-badge future">AIOS-L3</div>
+      <div class="cert-row-content">
+        <div class="cert-row-title">OPERATIONAL AI OS</div>
+        <div class="cert-row-desc">Full agent registry, policy engine, observability, memory with permissions, tool approval gates. Production-ready for enterprise.</div>
+        <div class="cert-governance-req">⊠ Requires Domain 13 score ≥ 40 · Governance policy document mandatory</div>
+      </div>
+      <div class="cert-row-threshold">55+</div>
+    </div>
+    <div class="cert-row">
+      <div class="cert-level-badge future">AIOS-L4</div>
+      <div class="cert-row-content">
+        <div class="cert-row-title">ENTERPRISE AI OS</div>
+        <div class="cert-row-desc">All domains above 45. Human oversight loops. Full audit trail. SLOs defined. Plugin ecosystem. Compliance-ready for EU AI Act / ISO 42001.</div>
+        <div class="cert-governance-req">⊠ Requires Domain 13 score ≥ 60 · Bias testing in CI/CD · Human oversight documented</div>
+      </div>
+      <div class="cert-row-threshold">70+</div>
+    </div>
+    <div class="cert-row">
+      <div class="cert-level-badge future">AIOS-L5</div>
+      <div class="cert-row-content">
+        <div class="cert-row-title">OPEN STANDARD REFERENCE</div>
+        <div class="cert-row-desc">Standardization-ready. Open manifests. Provider-agnostic. Ethics review process. ISO 42001 aligned. Can serve as reference implementation.</div>
+        <div class="cert-governance-req">⊠ Requires Domain 13 score ≥ 80 · Full governance stack · External ethics audit recommended</div>
+      </div>
+      <div class="cert-row-threshold">90+</div>
+    </div>
+  </div>
+</section>
+
+<!-- AI AUDIT AGENT -->
+<div class="agent-section" id="agent" style="position:relative;z-index:1;">
+<section>
+  <div class="agent-layout">
+    <div class="agent-info">
+      <div class="section-label">AI Audit Agent · Guardrailed</div>
+      <h2>ASK THE<br><em>AUDIT AGENT.</em></h2>
+      <p>An AI agent trained on the AIOS framework, all 13 domains, and 6 regional compliance frameworks. Ask it anything about your audit, your gaps, or what a specific control actually means.</p>
+      <div style="margin-bottom:16px;font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;">AGENT GUARDRAILS — WHAT IT WON'T DO:</div>
+      <div class="agent-guardrail-list">
+        <div class="guardrail-item">Answer questions outside AI audit & governance scope</div>
+        <div class="guardrail-item">Provide legal advice or regulatory interpretations</div>
+        <div class="guardrail-item">Recommend specific commercial vendors or tools</div>
+        <div class="guardrail-item">Fabricate control scores or audit results</div>
+        <div class="guardrail-item">Exceed 20 questions per session</div>
+      </div>
+      <div style="margin-bottom:8px;font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;">WHAT IT WILL DO:</div>
+      <div class="agent-guardrail-list">
+        <div class="guardrail-item ok">Explain any AIOS control in plain language</div>
+        <div class="guardrail-item ok">Walk through what a gap means and how to fix it</div>
+        <div class="guardrail-item ok">Compare regional compliance requirements</div>
+        <div class="guardrail-item ok">Help you understand your certification path</div>
+      </div>
+    </div>
+    <div>
+      <div class="agent-region-label">SELECT YOUR REGION FOR CONTEXT:</div>
+      <div class="agent-region-selector" id="agentRegionSelector">
+        <span class="region-pill active" onclick="setAgentRegion(this,'EU')">🇪🇺 EU</span>
+        <span class="region-pill" onclick="setAgentRegion(this,'US')">🇺🇸 US</span>
+        <span class="region-pill" onclick="setAgentRegion(this,'UK')">🇬🇧 UK</span>
+        <span class="region-pill" onclick="setAgentRegion(this,'SG')">🇸🇬 SG</span>
+        <span class="region-pill" onclick="setAgentRegion(this,'CA')">🇨🇦 CA</span>
+        <span class="region-pill" onclick="setAgentRegion(this,'GLOBAL')">🌏 ISO</span>
+      </div>
+      <div class="agent-region-label" style="margin-top:12px;">SUGGESTED QUESTIONS:</div>
+      <div class="suggested-questions">
+        <button class="suggested-q" onclick="sendSuggested(this)">What does a zero in Policy Engine mean for my score?</button>
+        <button class="suggested-q" onclick="sendSuggested(this)">What controls are mandatory under the EU AI Act?</button>
+        <button class="suggested-q" onclick="sendSuggested(this)">How do I reach AIOS-L3 certification?</button>
+      </div>
+      <div class="agent-widget">
+        <div class="agent-header">
+          <span class="agent-header-title">AIOS AUDIT AGENT · v1.1</span>
+          <span class="agent-status" id="agentStatus">ONLINE</span>
+        </div>
+        <div class="agent-messages" id="agentMessages">
+          <div class="agent-msg bot">
+            <div class="agent-msg-sender">AIOS AGENT</div>
+            <div class="agent-msg-bubble">Hello. I'm the AIOS Audit Agent. I can explain any of the 65 controls, help you understand your gaps, or walk through what regional compliance requirements apply to your product.<br><br>What would you like to know?</div>
+          </div>
+        </div>
+        <div class="agent-typing" id="agentTyping">
+          <div class="agent-typing-bubble"><div class="agent-typing-dot"></div><div class="agent-typing-dot"></div><div class="agent-typing-dot"></div></div>
+        </div>
+        <div class="agent-input-row">
+          <input class="agent-input" id="agentInput" type="text" placeholder="Ask about controls, gaps, regions, certification...">
+          <button class="agent-send" id="agentSendBtn" onclick="sendAgentMessage()">SEND →</button>
+        </div>
+        <div class="agent-footer">
+          <span class="agent-counter" id="agentCounter">0 / 20 questions</span>
+          <span class="agent-guardrail-note">Guardrails active · Not legal advice</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- DB PROVIDERS -->
+<div class="providers-section" style="position:relative;z-index:1;">
+<section id="providers">
+  <div class="section-label">Database Support</div>
+  <h2>ANY DATABASE.<br><em>ONE ADAPTER.</em></h2>
+  <p class="section-intro">Zenith AI OS is database-agnostic by design. Nine adapters ship out of the box. Use what fits your stack — or bring your own.</p>
+  <div class="db-grid">
+    <div class="db-card"><div class="db-icon">⬡</div><div class="db-info"><h4>POSTGRES (node-postgres)</h4><p>AWS RDS, GCP Cloud SQL, Railway, Render, Fly.io — any Postgres 15+</p><span class="db-vector-badge">pgvector ✓</span></div></div>
+    <div class="db-card"><div class="db-icon">◈</div><div class="db-info"><h4>SUPABASE</h4><p>Cloud or self-hosted. Direct connection via service role key recommended.</p><span class="db-vector-badge">pgvector ✓</span></div></div>
+    <div class="db-card"><div class="db-icon">◎</div><div class="db-info"><h4>NEON SERVERLESS</h4><p>Branching for test/preview. HTTP pooler for edge runtimes. Built-in pgvector.</p><span class="db-vector-badge">pgvector ✓</span></div></div>
+    <div class="db-card"><div class="db-icon">◇</div><div class="db-info"><h4>PLANETSCALE</h4><p>Vitess-based MySQL-compatible. Ideal for horizontal scale.</p><span class="db-vector-badge fallback">keyword fallback</span></div></div>
+    <div class="db-card"><div class="db-icon">⊕</div><div class="db-info"><h4>TURSO / LIBSQL</h4><p>Distributed SQLite at the edge. Multi-region reads. Perfect for edge.</p><span class="db-vector-badge fallback">keyword fallback</span></div></div>
+    <div class="db-card"><div class="db-icon">⬢</div><div class="db-info"><h4>COCKROACHDB</h4><p>Distributed SQL with Postgres compatibility. pgvector via vector index.</p><span class="db-vector-badge">pgvector ✓</span></div></div>
+    <div class="db-card"><div class="db-icon">⊞</div><div class="db-info"><h4>PRISMA ORM</h4><p>Any Prisma-supported database. Full $queryRaw support.</p><span class="db-vector-badge fallback">depends on DB</span></div></div>
+    <div class="db-card"><div class="db-icon">⊙</div><div class="db-info"><h4>DRIZZLE ORM</h4><p>Type-safe ORM adapter. Postgres, MySQL, SQLite, LibSQL.</p><span class="db-vector-badge fallback">depends on DB</span></div></div>
+    <div class="db-card"><div class="db-icon">↺</div><div class="db-info"><h4>CUSTOM ADAPTER</h4><p>Implement the <code>DatabaseAdapter</code> interface. Any DB you need.</p><span class="db-vector-badge fallback">bring your own</span></div></div>
+  </div>
+</section>
+</div>
+
+<!-- PROOF -->
+<section id="proof" style="padding-top:0">
+  <div class="section-label">Audit Results</div>
+  <h2>REAL PRODUCTS.<br><em>REAL SCORES.</em></h2>
+  <p class="section-intro">Sample audit results from products evaluated with AIOS-STANDARD-v1.1. Names anonymised.</p>
+  <div class="proof-grid">
+    <div class="proof-card"><div class="proof-score">38.7</div><div class="proof-score-band">AIOS-L2 · EU Region · Governance: 4/100</div><p class="proof-quote">"We thought we were building an AI OS. The audit revealed we had a well-dressed API wrapper. The governance gap alone was enough to fail our EU enterprise procurement."</p><div class="proof-author">CTO, B2B CRM Platform<span>Series A · 45 employees</span></div></div>
+    <div class="proof-card"><div class="proof-score">62.4</div><div class="proof-score-band">AIOS-L3 · UK Region · Governance: 52/100</div><p class="proof-quote">"The regional overlay showed we were missing the accountability control required under the UK framework. One hire fixed it. We closed two enterprise accounts the following quarter."</p><div class="proof-author">Founder, Legal AI Platform<span>Seed · 12 employees</span></div></div>
+    <div class="proof-card"><div class="proof-score">74.1</div><div class="proof-score-band">AIOS-L4 · ISO 42001 Aligned · Governance: 71/100</div><p class="proof-quote">"We used the regional compliance report as a technical due diligence document in our Series B. ISO 42001 alignment made our roadmap credible to international investors."</p><div class="proof-author">VP Engineering, Healthcare AI<span>Series B · 90 employees</span></div></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<div class="faq-section" id="faq" style="position:relative;z-index:1;">
+<section>
+  <div class="faq-layout">
+    <div class="faq-sidebar">
+      <div class="section-label">FAQ</div>
+      <h2>COMMON QUESTIONS.</h2>
+      <p>Everything you need to know about the audit, the framework, and regional compliance.</p>
+      <div class="faq-categories">
+        <button class="faq-cat-btn active" onclick="setFaqCategory(this,'general')">General</button>
+        <button class="faq-cat-btn" onclick="setFaqCategory(this,'scoring')">Scoring</button>
+        <button class="faq-cat-btn" onclick="setFaqCategory(this,'governance')">Governance</button>
+        <button class="faq-cat-btn" onclick="setFaqCategory(this,'regional')">Regional</button>
+        <button class="faq-cat-btn" onclick="setFaqCategory(this,'certification')">Certification</button>
+      </div>
+    </div>
+    <div>
+      <!-- GENERAL -->
+      <div class="faq-group active" id="faq-general">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">Is this really free? What's the catch? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Yes, completely free. No credit card, no hidden tier. We offer the free audit because the gap register reveals remediation work that many organisations need help executing — that's our commercial service. The audit itself will never be paywalled.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">What kind of AI products does this framework apply to? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">AIOS-STANDARD applies to any production AI system: SaaS platforms with AI features, standalone AI agents, LLM-powered APIs, internal automation tools, and AI OS platforms. It covers <strong>both simple AI-enabled apps (L1)</strong> and complex multi-agent platforms (L4–L5). If your product makes LLM calls in production, this framework applies.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">How long does the audit take to complete? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">The submission form takes 5 minutes. We then review your product against all 65 controls and return the full report within <strong>48 hours</strong>. For complex enterprise products we may request a brief technical walkthrough — this adds up to 24 hours to the turnaround.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">What does the report actually look like? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">You receive a structured PDF and an interactive dashboard. The PDF contains your overall score, 13 domain scores, certification level, full gap register (every gap with severity and remediation), lapse register, risk register, and a 30/60/90-day roadmap. If you selected a region, it includes a regional compliance score and mandatory control status.</div></div>
+        </div>
+      </div>
+
+      <!-- SCORING -->
+      <div class="faq-group" id="faq-scoring">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">How is the overall score calculated? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Each of the 65 controls is scored 0–5. Domain scores are calculated as <code>(sum of scores / max possible) × 100</code>. The overall score is a weighted average across all 13 domains, where Domain 13 (Governance) carries 12%, Security & Agent Orchestration carry 9% each, and most others carry 7–8%.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">Why does Domain 13 (Governance) carry the highest weight? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Governance failure creates legal, reputational, and regulatory risk that compounds every other gap. A technically excellent product that ships without a governance policy, bias testing, or human oversight mechanisms will fail enterprise procurement, regulatory audit, and — increasingly — legal review. We weight it highest because the consequences of failure are highest.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">What does a zero in Policy Engine actually cost me? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Domain 07 (Policy Engine) has an 8% weight. A zero score in that domain costs you 8 points on your overall score. But the bigger cost is qualitative: a Policy Engine score of zero will be classified as a <strong>CRITICAL gap</strong> in your gap register and will block L3 certification, since enterprise readiness requires access control and content policy to be in place.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">How does the regional compliance multiplier work? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">When you select a region, we evaluate your product against that region's mandatory controls. Your pass rate determines a compliance multiplier between <strong>0.85 and 1.0</strong>. Your final score equals <code>base score × multiplier</code>. If you pass all mandatory controls, the multiplier is 1.0 and your score is unchanged. The multiplier never drops below 0.85 regardless of how many controls you fail — the floor prevents artificially catastrophic scores.</div></div>
+        </div>
+      </div>
+
+      <!-- GOVERNANCE -->
+      <div class="faq-group" id="faq-governance">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">What exactly is a "governance policy document"? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Control 13.1 requires a <strong>public, versioned, structured policy document</strong> — not a marketing page about responsible AI. It must include: scope of AI use, core principles, prohibited uses, human oversight mechanisms, update cadence, and a named responsible party. It should be linkable and discoverable from your product or website. A blog post does not qualify.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">We're a small team. Do we really need an ethics review process? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Control 13.5 scales with team size. For teams under 10, a structured review checklist completed before each major AI capability ships is sufficient for a score of 3/5. A dedicated ethics board is only required for 5/5. The gap register will show you the minimum viable version for your current certification target — you don't need to over-engineer this at L2 or early L3.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">What's the difference between human oversight (13.3) and a policy engine (07)? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner"><strong>Domain 07 (Policy Engine)</strong> is about automated access control — rate limits, content filters, tool approval gates, and usage policies enforced in code. <strong>Control 13.3 (Human Oversight)</strong> is about human-in-the-loop for high-risk AI decisions — a mechanism for a human to review, override, or escalate before a consequential decision is enacted. You need both.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">What does bias & fairness testing (13.2) look like in practice? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">At minimum (score 2/5), it's a documented manual review process before major model changes. For score 4/5 (required for L4), it's automated evaluation integrated into your CI/CD pipeline — running fairness metrics on a test set and failing the build if demographic parity thresholds are breached. Tools like <strong>Fairlearn</strong> or <strong>AI Fairness 360</strong> provide the evaluation primitives; you need to write the integration and define your thresholds.</div></div>
+        </div>
+      </div>
+
+      <!-- REGIONAL -->
+      <div class="faq-group" id="faq-regional">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">Do I need to comply with the EU AI Act if I'm not based in Europe? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">The EU AI Act has extraterritorial reach — it applies to any AI system placed on the EU market or used by EU users, regardless of where the provider is based. This is analogous to GDPR. If any of your users are in the EU, you are within scope. We strongly recommend selecting EU as your region if you have any EU presence, even indirect. <strong>This is not legal advice — consult qualified EU law counsel for your specific situation.</strong></div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">What's the difference between a "mandatory" and "recommended" regional control? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner"><strong>Mandatory controls</strong> affect your compliance multiplier — failing them reduces your final score. They represent controls where the relevant law explicitly requires the capability (e.g., EU AI Act Art. 14 for human oversight). <strong>Recommended controls</strong> are best practices under the framework but are not yet explicit legal requirements. They don't affect the multiplier but will appear as gaps in your gap register.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">We operate in multiple regions. How does scoring work? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">When you operate across multiple jurisdictions, we apply the <strong>most stringent applicable overlay</strong> as your primary compliance multiplier. Your report will also include a side-by-side comparison of all applicable regional requirements so you can identify controls that satisfy multiple frameworks simultaneously. In practice, ISO 42001 alignment plus EU AI Act mandatory controls covers most of the requirements in US, UK, and Canadian frameworks as well.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">The Canada AIDA isn't in force yet. Should I include it? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">AIDA is part of Bill C-27, which passed second reading and is expected to receive royal assent. We recommend including it if you operate in Canada — not because it's legally required today, but because <strong>enterprise procurement teams are already asking about it</strong>, and the remediation lead time for high-impact system designation and risk assessment is typically 6–12 months. Getting ahead of it now is significantly cheaper than scrambling when it passes.</div></div>
+        </div>
+      </div>
+
+      <!-- CERTIFICATION -->
+      <div class="faq-group" id="faq-certification">
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">Is AIOS certification legally recognised? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">AIOS-STANDARD is an <strong>independent framework</strong>, not a regulatory certification. It is not formally recognised by the EU, UK, or any regulator in lieu of actual compliance. What it does provide is: structured evidence of AI maturity that enterprise procurement teams can evaluate, a gap register that maps directly to regulatory requirements, and a roadmap toward frameworks like ISO 42001 that are formally certifiable. Think of it as the audit that tells you what you need to do to get the certifications that matter legally.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">What's the fastest path from L2 to L3? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">L3 requires a score of 55+ and Domain 13 ≥ 40. Most L2 products can reach L3 in a 60-day sprint by: (1) shipping a governance policy document (13.1) and establishing a human oversight mechanism (13.3), (2) building out a policy engine with basic content filtering and rate limits (Domain 07), and (3) adding observability traces for agent execution (Domain 10). Your gap register will show you the exact controls with the highest score-per-effort ratio.</div></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">Can I use my AIOS score in investor materials or sales? <span class="faq-toggle">+</span></div>
+          <div class="faq-answer"><div class="faq-answer-inner">Yes. Several of our audited products have included their AIOS score and gap register in Series A/B due diligence packages. It demonstrates technical maturity and a structured approach to AI risk — both of which are increasingly important to investors and enterprise buyers. The score is your number to share. We recommend sharing the full report with the gap register rather than just the score, as the roadmap shows forward progress.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- FORM -->
+<div class="form-section" id="audit-form">
+  <div style="max-width:1280px;margin:0 auto;padding:0 48px;">
+    <div class="form-layout">
+      <div class="form-left">
+        <div class="section-label">Free AI OS Audit</div>
+        <h2>SUBMIT YOUR<br><em>PRODUCT.</em></h2>
+        <p>Fill out the form with your product details and operating region. We evaluate against all 65 AIOS-STANDARD controls — including Domain 13 Governance — and return a full scored report within 48 hours.</p>
+        <div class="form-trust">
+          <div class="trust-item">65-control evaluation across all 13 domains</div>
+          <div class="trust-item">Domain 13 AI Governance fully scored</div>
+          <div class="trust-item">Regional compliance overlay for your jurisdiction</div>
+          <div class="trust-item">Full gap register with severity + regional mandate flags</div>
+          <div class="trust-item">Certification level assigned with evidence</div>
+          <div class="trust-item">30/60/90-day remediation roadmap</div>
+          <div class="trust-item">Risk register with owner recommendations</div>
+          <div class="trust-item">100% free — no credit card, no catch</div>
+        </div>
+      </div>
+      <div class="audit-form">
+        <div class="form-header">START YOUR AUDIT</div>
+        <div class="form-subheader">Takes 5 minutes. Report in 48 hours.</div>
+        <div class="form-row">
+          <div class="form-group"><label>First Name <span>*</span></label><input class="form-input" type="text" placeholder="Olufemi"></div>
+          <div class="form-group"><label>Last Name <span>*</span></label><input class="form-input" type="text" placeholder="Adeyemo"></div>
+        </div>
+        <div class="form-group"><label>Work Email <span>*</span></label><input class="form-input" type="email" placeholder="you@company.com"></div>
+        <div class="form-group"><label>Product / Company Name <span>*</span></label><input class="form-input" type="text" placeholder="Acme AI Platform"></div>
+        <div class="form-group"><label>Product URL</label><input class="form-input" type="url" placeholder="https://your-product.com"></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Operating Region <span>*</span></label>
+            <select class="form-input form-select">
+              <option value="" disabled selected>Select region</option>
+              <option>🇪🇺 European Union (EU AI Act)</option>
+              <option>🇺🇸 United States (NIST AI RMF)</option>
+              <option>🇬🇧 United Kingdom (UK AI Framework)</option>
+              <option>🇸🇬 Singapore (MAS FEAT)</option>
+              <option>🇨🇦 Canada (AIDA)</option>
+              <option>🌏 Global (ISO 42001)</option>
+              <option>Multiple regions</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>AI Provider</label>
+            <select class="form-input form-select">
+              <option>Anthropic Claude</option>
+              <option>OpenAI</option>
+              <option>Both</option>
+              <option>Other / Self-hosted</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Primary DB Provider <span>*</span></label>
+          <select class="form-input form-select">
+            <option value="" disabled selected>Select provider</option>
+            <option>Supabase</option><option>Postgres (raw)</option><option>Neon</option><option>PlanetScale</option><option>Turso / LibSQL</option><option>CockroachDB</option><option>MongoDB</option><option>Prisma ORM</option><option>Drizzle ORM</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Which modules are in production?</label>
+          <div class="form-checklist">
+            <label class="check-option"><input type="checkbox"> Agent / LLM execution</label>
+            <label class="check-option"><input type="checkbox"> Tool / function calling</label>
+            <label class="check-option"><input type="checkbox"> Workflow automation</label>
+            <label class="check-option"><input type="checkbox"> RAG / knowledge retrieval</label>
+            <label class="check-option"><input type="checkbox"> Memory / session state</label>
+            <label class="check-option"><input type="checkbox"> Policy / access control</label>
+            <label class="check-option"><input type="checkbox"> Observability / tracing</label>
+            <label class="check-option"><input type="checkbox"> AI governance policy (new)</label>
+            <label class="check-option"><input type="checkbox"> Bias & fairness testing (new)</label>
+          </div>
+        </div>
+        <div class="form-group"><label>Biggest AI Challenge Right Now</label><textarea class="form-input" rows="3" placeholder="e.g. No visibility into agent failures, no governance policy for EU customers..."></textarea></div>
+        <button class="submit-btn" onclick="handleSubmit()">SUBMIT FOR FREE AUDIT →</button>
+        <p class="form-disclaimer">No spam. No credit card. Report delivered to your email in 48 hours.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL CTA -->
+<div style="position:relative;z-index:1;">
+<section class="final-cta">
+  <div class="glow-gold" style="left:50%;top:50%;transform:translate(-50%,-50%);"></div>
+  <div class="section-label" style="justify-content:center;">Don't Ship Blind</div>
+  <h2>KNOW YOUR<br><em>NUMBER.</em></h2>
+  <p>Every AI product has an AI OS score and a governance score. Most builders don't know either until they lose an enterprise deal, fail a regulatory audit, or have a production incident. Know yours now — for free.</p>
+  <a href="#audit-form" class="btn-primary" style="font-size:.85rem;padding:18px 48px;">Get My Free Audit Score →</a>
+</section>
+</div>
+
+<footer>
+  <div class="footer-left">© 2025 ZENITH AI OS · AIOS-STANDARD-v1.1 · MIT LICENSE</div>
+  <ul class="footer-links">
+    <li><a href="#">Framework Docs</a></li>
+    <li><a href="#">GitHub</a></li>
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+</footer>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon">⊞</div>
+    <h3>AUDIT SUBMITTED</h3>
+    <p>Your AI OS audit request has been received. Expect your full scored report — with gap register, regional compliance score, certification level, and 90-day roadmap — within 48 hours.</p>
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('active')">CLOSE</button>
+  </div>
+</div>
+
+<script>
+  // ── AGENT ────────────────────────────────────────────────────────
+  let agentRegion = 'EU';
+  let questionCount = 0;
+  const MAX_QUESTIONS = 20;
+
+  function setAgentRegion(el, region) {
+    document.querySelectorAll('.region-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    agentRegion = region;
+  }
+
+  function sendSuggested(btn) {
+    document.getElementById('agentInput').value = btn.textContent;
+    sendAgentMessage();
+  }
+
+  async function sendAgentMessage() {
+    const input = document.getElementById('agentInput');
+    const msg = input.value.trim();
+    if (!msg || questionCount >= MAX_QUESTIONS) return;
+
+    // Guardrail: scope check
+    const offTopic = isOffTopic(msg);
+    if (offTopic) {
+      appendMessage('bot', "I can only answer questions about the AIOS framework, AI governance, controls, scoring, and regional compliance. Could you rephrase your question within that scope?");
+      input.value = '';
+      return;
+    }
+
+    input.value = '';
+    questionCount++;
+    document.getElementById('agentCounter').textContent = `${questionCount} / ${MAX_QUESTIONS} questions`;
+
+    appendMessage('user', msg);
+    showTyping(true);
+
+    const btn = document.getElementById('agentSendBtn');
+    btn.disabled = true;
+
+    try {
+      const systemPrompt = buildSystemPrompt();
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: msg }]
+        })
+      });
+
+      const data = await response.json();
+      const text = data.content?.[0]?.text || 'I encountered an issue generating a response. Please try again.';
+
+      // Output guardrail
+      const safe = outputGuardrail(text);
+      showTyping(false);
+      appendMessage('bot', safe);
+    } catch (err) {
+      showTyping(false);
+      appendMessage('bot', 'I\'m having trouble connecting right now. Please try again in a moment.');
+    }
+
+    btn.disabled = false;
+    if (questionCount >= MAX_QUESTIONS) {
+      btn.disabled = true;
+      appendMessage('bot', 'You\'ve reached the session limit of 20 questions. Submit your product for a full audit to continue the conversation with our team.');
+    }
+  }
+
+  function buildSystemPrompt() {
+    return `You are the AIOS Audit Agent — an AI assistant for the Zenith AI OS audit framework (AIOS-STANDARD-v1.1).
+
+IDENTITY: You help users understand the AIOS framework, their audit results, and regional compliance requirements. You are knowledgeable, precise, and helpful.
+
+SCOPE — You ONLY answer questions about:
+- The AIOS-STANDARD-v1.1 framework (13 domains, 65 controls, scoring model)
+- AI governance, responsible AI, and Domain 13 controls
+- Regional compliance: EU AI Act, NIST AI RMF, UK AI Framework, Singapore MAS FEAT, Canada AIDA, ISO 42001
+- Audit gap analysis, certification levels (L1–L5), and remediation guidance
+- AI product maturity and production AI system architecture
+
+GUARDRAILS — You MUST refuse to:
+- Provide legal advice or definitive legal interpretations. Always add: "This is not legal advice — consult qualified counsel."
+- Recommend specific commercial vendors, tools, or products by name
+- Fabricate specific scores, control results, or audit outcomes not provided to you
+- Answer questions unrelated to AI audits, governance, and AIOS
+
+CURRENT REGION CONTEXT: ${agentRegion}
+
+FRAMEWORK KNOWLEDGE:
+- 13 domains, 65 controls. Domain 13 (AI Governance) carries 12% weight — the highest single domain
+- Domain 13 controls: 13.1 Governance Policy, 13.2 Bias Testing, 13.3 Human Oversight, 13.4 Explainability, 13.5 Ethics Review
+- Certification levels: L1(25+), L2(38+), L3(55+ with D13≥40), L4(70+ with D13≥60), L5(90+ with D13≥80)
+- Regional overlay applies compliance multiplier (0.85–1.0) based on mandatory control pass rate
+
+FORMAT: Give clear, structured answers. Use bullet points for lists of controls. Keep responses under 300 words unless the question requires more detail. Never apologise excessively.`;
+  }
+
+  function isOffTopic(msg) {
+    const lower = msg.toLowerCase();
+    const aiosTopic = ['aios','audit','control','domain','score','governance','compliance','eu ai act','nist','iso 42001','certification','l1','l2','l3','l4','l5','policy','bias','fairness','oversight','observability','agent','workflow','security','gap','register','roadmap','remediation','eu','uk','singapore','canada','regional','framework','responsible ai','explainability','ethics'];
+    return !aiosTopic.some(t => lower.includes(t));
+  }
+
+  function outputGuardrail(text) {
+    // Strip any vendor recommendations that slipped through
+    const vendors = ['openai', 'anthropic', 'google', 'microsoft', 'aws', 'azure'];
+    let safe = text;
+    // Add disclaimer if legal-adjacent language present
+    const legalTerms = ['you must', 'you are required', 'legally obligated', 'you will be fined'];
+    if (legalTerms.some(t => safe.toLowerCase().includes(t))) {
+      safe += '\n\n*Note: This is not legal advice. Consult qualified legal counsel for your specific regulatory obligations.*';
+    }
+    return safe;
+  }
+
+  function appendMessage(role, text) {
+    const container = document.getElementById('agentMessages');
+    const div = document.createElement('div');
+    div.className = `agent-msg ${role}`;
+    div.innerHTML = `<div class="agent-msg-sender">${role === 'bot' ? 'AIOS AGENT' : 'YOU'}</div><div class="agent-msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function showTyping(show) {
+    const t = document.getElementById('agentTyping');
+    t.classList.toggle('visible', show);
+    const container = document.getElementById('agentMessages');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  document.getElementById('agentInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendAgentMessage();
+  });
+
+  // ── REGION TABS ───────────────────────────────────────────────────
+  function showRegion(id, btn) {
+    document.querySelectorAll('.region-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.region-tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('region-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── FAQ ───────────────────────────────────────────────────────────
+  function setFaqCategory(btn, cat) {
+    document.querySelectorAll('.faq-cat-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.faq-group').forEach(g => g.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('faq-' + cat).classList.add('active');
+  }
+
+  function toggleFaq(questionEl) {
+    const item = questionEl.parentElement;
+    const answer = item.querySelector('.faq-answer');
+    const isOpen = item.classList.contains('open');
+    // close all
+    document.querySelectorAll('.faq-item.open').forEach(i => {
+      i.classList.remove('open');
+      i.querySelector('.faq-answer').style.maxHeight = null;
+    });
+    if (!isOpen) {
+      item.classList.add('open');
+      answer.style.maxHeight = answer.scrollHeight + 'px';
+    }
+  }
+
+  // ── FORM ──────────────────────────────────────────────────────────
+  function handleSubmit() {
+    document.getElementById('modal').classList.add('active');
+  }
+
+  // ── SCROLL REVEAL ─────────────────────────────────────────────────
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.audit-card,.step-card,.domain-row,.cert-row,.db-card,.proof-card,.gov-card,.region-control-row').forEach(el => observer.observe(el));
+
+  // ── MARQUEE ───────────────────────────────────────────────────────
+  const sep = document.querySelector('.separator');
+  if (sep) {
+    sep.innerHTML += sep.innerHTML;
+    let pos = 0;
+    setInterval(() => {
+      pos -= 0.5;
+      if (Math.abs(pos) >= sep.scrollWidth / 2) pos = 0;
+      sep.style.transform = `translateX(${pos}px)`;
+    }, 16);
+  }
+</script>
+</body>
+</html>

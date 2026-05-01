@@ -1,0 +1,40 @@
+import type { RegionOverlay } from './types.js';
+
+export const US: RegionOverlay = {
+  region: 'US',
+  displayName: 'United States — NIST AI RMF / EO 14110',
+  primaryLaw: 'NIST AI RMF 1.0 + Executive Order 14110 (2023)',
+  effectiveDate: '2023-10-30',
+  complianceMultiplier: 1.0,
+  mandatoryGates: [
+    'security',
+    'accountability',
+    'transparency',
+  ],
+  weights: {
+    'security': 0.12,
+    'accountability': 0.11,
+    'transparency': 0.10,
+    'reliability': 0.10,
+    'ai-governance': 0.10,
+    'human-oversight': 0.09,
+    'fairness': 0.09,
+    'privacy': 0.09,
+    'data-governance': 0.08,
+    'model-governance': 0.07,
+    'deployment': 0.07,
+    'incident-response': 0.06,
+  },
+  controls: [
+    { id: 'us-001', name: 'AI Risk Management Framework Adoption', domain: 'ai-governance', mandatory: true, reference: 'NIST AI RMF — Govern' },
+    { id: 'us-002', name: 'AI Impact Assessment', domain: 'accountability', mandatory: true, reference: 'NIST AI RMF — Map 1.1' },
+    { id: 'us-003', name: 'Red-Teaming for Dual-Use Foundation Models', domain: 'security', mandatory: true, reference: 'EO 14110 §4.2' },
+    { id: 'us-004', name: 'Safety Reporting to NIST', domain: 'incident-response', mandatory: false, reference: 'EO 14110 §4.1' },
+    { id: 'us-005', name: 'Algorithmic Discrimination Protections', domain: 'fairness', mandatory: true, reference: 'EO 14110 §7' },
+    { id: 'us-006', name: 'Watermarking AI-Generated Content', domain: 'transparency', mandatory: false, reference: 'EO 14110 §4.5' },
+    { id: 'us-007', name: 'Privacy Impact Assessment', domain: 'privacy', mandatory: true, reference: 'EO 14110 §9' },
+    { id: 'us-008', name: 'Secure Development Lifecycle', domain: 'security', mandatory: true, reference: 'NIST AI RMF — Measure 2.5' },
+    { id: 'us-009', name: 'Model Card / Transparency Documentation', domain: 'transparency', mandatory: false, reference: 'NIST AI RMF — Govern 1.7' },
+    { id: 'us-010', name: 'Continuous Monitoring & Evaluation', domain: 'reliability', mandatory: true, reference: 'NIST AI RMF — Manage 4.1' },
+  ],
+};
