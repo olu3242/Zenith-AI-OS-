@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
+import { computeGovernanceScore } from "../scoring/governanceScore.js";
 
 const FindingSchema = z.object({
   domain: z.string(),
@@ -22,9 +23,17 @@ export type AuditRequest = z.infer<typeof AuditRequestSchema>;
 export interface AuditAgentResult {
   sessionId: string;
   region: string;
+  regionDisplayName: string;
   findings: Finding[];
   overallScore: number;
+  weightedScore: number;
+  regionalScore: number;
+  grade: string;
+  gradeLabel: string;
   certificationEligible: string[];
+  governanceDomainScore: number;
+  meetsGovernanceGate: boolean;
+  mandatoryGatesStatus: Record<string, boolean>;
   generatedAt: string;
 }
 
@@ -47,6 +56,21 @@ function checkRateLimits(sessionId: string, sessionCount: number): void {
     throw new Error(`Daily limit reached (max ${DAILY_LIMIT} audits per day)`);
   }
   dailyUsage.set(key, daily + 1);
+}
+
+const INJECTION_PATTERNS = [
+  /ignore (previous|all|above|prior) instructions/i,
+  /you are now/i,
+  /new (system|persona|role|identity)/i,
+  /override (your|the) (system|instructions|prompt)/i,
+  /disregard (your|the) (system|instructions|constraints)/i,
+  /act as (if you are|a different)/i,
+  /\[system\]/i,
+  /<<<.*>>>/,
+];
+
+function detectInjection(text: string): boolean {
+  return INJECTION_PATTERNS.some((pattern) => pattern.test(text));
 }
 
 const SYSTEM_PROMPT = `You are the Zenith AI OS audit agent. Your ONLY function is to evaluate AI systems against the AIOS-STANDARD framework (13 domains, 65 controls).
@@ -83,13 +107,28 @@ Return a JSON array of findings. Each finding must have:
 Respond with ONLY the JSON array, no prose.
 `;
 
-const CERTIFICATION_THRESHOLDS: Record<string, number> = {
-  "AIOS-L1": 25,
-  "AIOS-L2": 38,
-  "AIOS-L3": 55,
-  "AIOS-L4": 70,
-  "AIOS-L5": 90,
-};
+const CERTIFICATION_THRESHOLDS: Array<{ level: string; min: number }> = [
+  { level: "AIOS-L5", min: 90 },
+  { level: "AIOS-L4", min: 70 },
+  { level: "AIOS-L3", min: 55 },
+  { level: "AIOS-L2", min: 38 },
+  { level: "AIOS-L1", min: 25 },
+];
+
+function buildDomainScores(findings: Finding[]): Record<string, number> {
+  const domainGroups: Record<string, number[]> = {};
+  for (const f of findings) {
+    if (f.status === "not_applicable") continue;
+    const key = f.domain.toLowerCase();
+    if (!domainGroups[key]) domainGroups[key] = [];
+    domainGroups[key].push(f.score);
+  }
+  const result: Record<string, number> = {};
+  for (const [domain, scores] of Object.entries(domainGroups)) {
+    result[domain] = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  }
+  return result;
+}
 
 export class AuditAgent {
   private client: Anthropic;
@@ -101,6 +140,10 @@ export class AuditAgent {
 
   async run(rawRequest: unknown, sessionId: string): Promise<AuditAgentResult> {
     const request = AuditRequestSchema.parse(rawRequest);
+
+    if (detectInjection(request.systemDescription)) {
+      throw new Error("Audit request rejected: prompt injection detected in systemDescription");
+    }
 
     const sessionCount = this.sessionCounts.get(sessionId) ?? 0;
     checkRateLimits(sessionId, sessionCount);
@@ -126,21 +169,27 @@ export class AuditAgent {
     const rawFindings = JSON.parse(jsonMatch[0]);
     const findings: Finding[] = rawFindings.map((f: unknown) => FindingSchema.parse(f));
 
-    const overallScore =
-      findings.length > 0
-        ? Math.round(findings.reduce((sum, f) => sum + f.score, 0) / findings.length)
-        : 0;
+    const domainScores = buildDomainScores(findings);
+    const scoreResult = computeGovernanceScore(domainScores, request.region);
 
-    const certificationEligible = Object.entries(CERTIFICATION_THRESHOLDS)
-      .filter(([, threshold]) => overallScore >= threshold)
-      .map(([level]) => level);
+    const certificationEligible = CERTIFICATION_THRESHOLDS
+      .filter(({ min }) => scoreResult.regional >= min)
+      .map(({ level }) => level);
 
     return {
       sessionId,
       region: request.region,
+      regionDisplayName: scoreResult.regionDisplayName,
       findings,
-      overallScore,
+      overallScore: scoreResult.raw,
+      weightedScore: scoreResult.weighted,
+      regionalScore: scoreResult.regional,
+      grade: scoreResult.grade,
+      gradeLabel: scoreResult.gradeLabel,
       certificationEligible,
+      governanceDomainScore: scoreResult.governanceDomainScore,
+      meetsGovernanceGate: scoreResult.meetsGovernanceGate,
+      mandatoryGatesStatus: scoreResult.mandatoryGatesStatus,
       generatedAt: new Date().toISOString(),
     };
   }
